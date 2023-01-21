@@ -6,11 +6,12 @@
 
 <header>
 	<div class="corner">
-	<nav>
-		<ul>
-			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
-				<a href="/">Home</a>
-			</li>
-		</ul>
-	</nav>
+		<nav>
+			<ul>
+				<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
+					<a href="/">Home</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
 </header>

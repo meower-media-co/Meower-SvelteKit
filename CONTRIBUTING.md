@@ -12,9 +12,9 @@ Branches are usually named like `username-branch`, where `username` is a short v
 
 Requirements:
 
--   node.js and npm or some other package manager
--   git and some knowledge of it
--   Preferably understanding of JavaScript and node.js, among ~~us~~ other things
+- node.js and npm or some other package manager
+- git and some knowledge of it
+- Preferably understanding of JavaScript and node.js, among ~~us~~ other things
 
 To clone and run a development server on your machine (that autoupdates when you modify files):
 

@@ -5,13 +5,10 @@
 
 <svelte:head>
 	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<meta name="description" content="Meower SvelteKit" />
 </svelte:head>
 
-<section>
-
-</section>
+<section />
 
 <style>
-
 </style>

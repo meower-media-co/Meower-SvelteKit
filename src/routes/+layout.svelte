@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Header from './Header.svelte';
 	import './styles.css';
-
 </script>
 
 <div class="app">
@@ -11,13 +10,12 @@
 		<slot />
 	</main>
 
-	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
-	</footer>
+	<footer />
 </div>
 
 <style>
-    :global(body), :global(html){
+	:global(body),
+	:global(html) {
 		margin: 0;
 		padding: 0;
 	}
@@ -29,8 +27,6 @@
 		margin: 0;
 		padding: 0;
 	}
-
-
 
 	footer {
 		display: flex;

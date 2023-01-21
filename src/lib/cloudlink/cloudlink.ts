@@ -34,21 +34,18 @@
  * SOFTWARE.
  */
 
-import CustomEventEmitter from './customEventEmitter';
-import sleep from './sleep';
-import { apiUrl } from './urls';
+import CustomEventEmitter from '../util/customEventEmitter';
+import sleep from '../util/sleep';
+import { apiUrl } from '../urls';
 import type {
 	Packet,
 	ListenerPacket,
 	ModePacket,
 	SendListenerReturn,
-	ModeRequestReturn
+	ModeRequestReturn,
+	Options
 } from './cloudlink-types';
-// we should seperate types into a seperate file
 
-/**
- * @classdesc A JavaScript client for CloudLink servers. A modified fork of CloudlinkJS.
- */
 export default class CloudLink extends CustomEventEmitter {
 	ip: string | null = null;
 	logging: boolean = true;
@@ -74,13 +71,17 @@ export default class CloudLink extends CustomEventEmitter {
 	}
 
 	constructor(
-		options = {
-			logging: true
+		options: Options = {
+			logging: true,
+			connect: undefined
 		}
 	) {
 		super();
 
 		this.logging = options?.logging ?? true;
+		if (options?.connect) {
+			this.connect(options.connect);
+		}
 	}
 
 	/**
@@ -337,11 +338,8 @@ export default class CloudLink extends CustomEventEmitter {
 	/**
 	 * Send a packet through the link,
 	 * and wait for a response.
-	 *
-	 * @param {Packet} data
-	 * @returns {Promise<SendListenerReturn>}
 	 */
-	sendRequest(data: Packet) {
+	sendRequest(data: Packet): Promise<SendListenerReturn> {
 		return this.sendListener({
 			...data,
 			listener: Date.now() + '_' + Math.random()

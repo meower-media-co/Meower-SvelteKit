@@ -1,19 +1,33 @@
 <script lang="ts">
-	import Header from './Header.svelte';
-	import './styles.css';
+	import {setContext, getContext} from "svelte";
+
+	import Header from "./Header.svelte";
+	import "./styles.css";
+
+	import CloudLink from "$lib/cloudlink/cloudlink";
+	import {linkUrl} from "$lib/urls";
+
+	setContext("cl", new CloudLink());
+	const cl: CloudLink = getContext("cl");
 </script>
 
 <div class="app">
 	<Header />
 
 	<main>
-		<slot />
+		{#await cl.connect(linkUrl)}
+			Connecting...
+		{:then}
+			<slot />
+		{:catch e}
+			Error connecting: {e}
+		{/await}
 	</main>
 
 	<footer />
 </div>
 
-<style>
+<style lang="scss">
 	:global(body),
 	:global(html) {
 		margin: 0;
@@ -26,19 +40,22 @@
 		min-height: 100vh;
 		margin: 0;
 		padding: 0;
+		--orange: #f9a636;
+		--orange-button: var(--orange);
+		--orange-light: #ffce8c;
+		--orange-dark: #b46d34;
+		--orange-scrollbar-back: #a15d04;
+		--background: white;
+		--foreground: black;
+		--foreground-orange: white;
+
+		background-color: var(--background);
+		color: var(--foreground);
+		
+
 	}
 
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
-	}
+	
 
 	@media (min-width: 480px) {
 		footer {

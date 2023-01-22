@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {setContext, getContext} from "svelte";
+	import {setContext, getContext, onMount} from "svelte";
 
 	import Header from "./Header.svelte";
 	import "./styles.css";
@@ -7,8 +7,11 @@
 	import CloudLink from "$lib/cloudlink/cloudlink";
 	import {linkUrl} from "$lib/urls";
 
+	
+	
 	setContext("cl", new CloudLink());
 	const cl: CloudLink = getContext("cl");
+
 </script>
 
 <div class="app">
@@ -52,7 +55,7 @@
 		background-color: var(--background);
 		color: var(--foreground);
 		
-
+		font-family: Helvetica, Arial, sans-serif;
 	}
 
 	

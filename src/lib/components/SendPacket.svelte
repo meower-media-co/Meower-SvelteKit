@@ -1,29 +1,29 @@
 <script lang='ts'>
-    import {getContext} from "svelte";
-	import type CloudLink from "$lib/cloudlink/cloudlink";
+    import type CloudLink from "$lib/cloudlink/cloudlink";
+    import { getContext } from "svelte";
 
     const cl: CloudLink = getContext("cl");
-    var message = "";
 
-    function send() {
-        cl.send((JSON.parse(message)));
-        message = "";
+    let post = '';
 
-        //clear the input field
-        var input = document.querySelector("input");
-        if (input) {
-            input.value = "";
-        }
+    function sendPost() {
+        cl.send({
+            cmd: "direct",
+            val: {
+                cmd: "post_home",
+                val: post
+            }
+        })
+
+        post = '';
+
+        // clear the input
+        const input: HTMLInputElement | null = document.querySelector('input[type="text"]');
+        if (input) input.value = '';
     }
-    
-    // send a message to the server every time the user clicks the button;
+</script>
 
-
-
-        
-</script> 
-
-<form on:submit|preventDefault={send}>
-    <input type="text" bind:value={message} />
-    <button type="submit">Send</button>
+<form on:submit|preventDefault={sendPost}>
+    <input type="text" bind:value={post} />
+    <input type="submit" value="Post" />
 </form>

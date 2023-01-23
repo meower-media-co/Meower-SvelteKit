@@ -18,8 +18,7 @@
 		display: inline-block;
 		background: var(--orange-button);
 		margin-right: 1em;
-		animation: jump 0.5s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95)
-			alternate;
+		animation: jump 0.5s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95) alternate;
 	}
 	.circle1 {
 		animation-delay: 0s;

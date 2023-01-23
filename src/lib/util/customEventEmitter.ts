@@ -31,7 +31,8 @@ export default class CustomEventEmitter {
 	 * Remove an event listener with its ID.
 	 */
 	off(id: any) {
-		if (!this.events[id]) throw new Error('Tried to remove nonexistent event listener');
+		if (!this.events[id])
+			throw new Error("Tried to remove nonexistent event listener");
 		delete this.events[id];
 	}
 

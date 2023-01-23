@@ -1,22 +1,30 @@
+<script lang="ts" context="module">
+	export interface Item {
+		id: any;
+		[index: string]: any;
+	}
+
+	export interface LoadPageReturn {
+		numPages: number;
+		result: Array<Item>;
+	}
+</script>
+
 <script lang="ts">
 	import Loading from "$lib/ui/Loading.svelte";
-	import type { PostPacket as Item } from "$lib/cloudlink/cloudlink-types";
 
+	export let items: Item[] = [];
 
-	export let items: Array<Item> = [];
+	export let loadPage: (page: number) => Promise<LoadPageReturn>
+		= async () => ({ numPages: 0, result: [] });
 
-	export let loadPage: (page: number) => Promise<{
-		numPages: number
-		result: Array<Item>
-	}> = async () => ({numPages: 0, result: []});
-
-	export const addItem = function(item: Item) {
+	export const addItem = function (item: Item) {
 		id++;
 		items.unshift(item);
 		items = items;
 		itemOffset++;
-	}
-	
+	};
+
 	export let itemsPerPage: number = 25;
 
 	let id = 0;
@@ -34,13 +42,11 @@
 			let overflow;
 			if (realOffset > 0 && pagesLoaded < numPages) {
 				overflow = await loadPage(page + 1);
-				realItems = realItems.concat(
-					overflow.result.slice(0, realOffset)
-				);
+				realItems = realItems.concat(overflow.result.slice(0, realOffset));
 			}
 			items = items.concat(realItems);
 			pagesLoaded = page;
-			return items.map(o => {
+			return items.map((o) => {
 				id++;
 				return o;
 			});
@@ -66,7 +72,7 @@
 			<slot name="empty" {items} />
 		{:else}
 			<slot name="loaded" {items}>
-				{#each items as item (item.val._id)}
+				{#each items as item (item.id)}
 					<slot name="item" {item} {items} />
 				{/each}
 			</slot>
@@ -76,7 +82,7 @@
 					<div class="loading-page">
 						<Loading />
 					</div>
-				{:else if numPages && numPages > pagesLoaded || true}
+				{:else if (numPages && numPages > pagesLoaded) || true}
 					<button
 						class="load-more"
 						on:click={() => loadPageWithOverflow(pagesLoaded + 1)}

@@ -34,9 +34,9 @@
  * SOFTWARE.
  */
 
-import CustomEventEmitter from '../util/customEventEmitter';
-import sleep from '../util/sleep';
-import { apiUrl } from '../urls';
+import CustomEventEmitter from "../util/customEventEmitter";
+import sleep from "../util/sleep";
+import { apiUrl } from "../urls";
 import type {
 	Packet,
 	ListenerPacket,
@@ -44,7 +44,7 @@ import type {
 	SendListenerReturn,
 	ModeRequestReturn,
 	Options
-} from './cloudlink-types';
+} from "./cloudlink-types";
 
 export default class CloudLink extends CustomEventEmitter {
 	ip: string | null = null;
@@ -87,17 +87,17 @@ export default class CloudLink extends CustomEventEmitter {
 	/**
 	 * Internal special formatted console function.
 	 */
-	_console(type: 'log' | 'warn' | 'error', label: string, ...values: any[]) {
+	_console(type: "log" | "warn" | "error", label: string, ...values: any[]) {
 		if (!this.logging) return;
 
-		const actualLog = '%o'.repeat(values.length);
+		const actualLog = "%o".repeat(values.length);
 
 		if (globalThis.document) {
 			console[type](
 				`%cCLJS%c${label}%c ${actualLog}`,
-				'background:#0fbd8c;color:white;font-weight:bold;border-radius:4px 0 0 4px;padding:0 3px;display:inline-block',
-				'background:#000;color:white;font-weight:bold;border-radius:0 4px 4px 0;padding:0 3px;display:inline-block',
-				'',
+				"background:#0fbd8c;color:white;font-weight:bold;border-radius:4px 0 0 4px;padding:0 3px;display:inline-block",
+				"background:#000;color:white;font-weight:bold;border-radius:0 4px 4px 0;padding:0 3px;display:inline-block",
+				"",
 				...values
 			);
 		} else {
@@ -108,19 +108,19 @@ export default class CloudLink extends CustomEventEmitter {
 	 * Special formatted console log function.
 	 */
 	log(label: string, ...values: any[]) {
-		this._console.apply(this, ['log', label, ...values]);
+		this._console.apply(this, ["log", label, ...values]);
 	}
 	/**
 	 * Special formatted console warn function.
 	 */
 	warn(label: string, ...values: any[]) {
-		this._console.apply(this, ['warn', label, ...values]);
+		this._console.apply(this, ["warn", label, ...values]);
 	}
 	/**
 	 * Special formatted console error function.
 	 */
 	error(label: string, ...values: any[]) {
-		this._console.apply(this, ['error', label, ...values]);
+		this._console.apply(this, ["error", label, ...values]);
 	}
 
 	/**
@@ -130,57 +130,63 @@ export default class CloudLink extends CustomEventEmitter {
 		return new Promise((resolve, reject) => {
 			try {
 				if (this.ws && this.ws.readyState !== WebSocket.CLOSED) {
-					this.log('connection', 'already connected, disconnecting...');
+					this.log("connection", "already connected, disconnecting...");
 					this.intentionalDisconnect = true;
 					this.disconnect(1000);
 				}
 
 				this.serverUrl = server;
 				this.ws = new WebSocket(server);
-				this.emit('connectionstart');
-				this.ws.addEventListener('message', (socketdata) => {
+				this.emit("connectionstart");
+				this.ws.addEventListener("message", (socketdata) => {
 					const data = JSON.parse(socketdata.data.toString());
 
 					const logData = JSON.parse(socketdata.data.toString());
 					// Censor token
 					if (logData.val && logData.val.payload && logData.val.payload.token) {
-						logData.val.payload.token = '[redacted]';
+						logData.val.payload.token = "[redacted]";
 					}
-					this.log('< incoming', logData);
+					this.log("< incoming", logData);
 
-					this.emit('packet', data);
+					this.emit("packet", data);
 					this.emit(data.cmd, data);
 					if (data.listener) {
-						this.emit('__listener_' + data.listener, data);
+						this.emit("__listener_" + data.listener, data);
 					}
 				});
-				this.ws.addEventListener('close', (e) => {
-					this.log('connection', 'disconnected with code ', e.code, ' and reason', e.reason);
-					this.emit('disconnect', e);
+				this.ws.addEventListener("close", (e) => {
+					this.log(
+						"connection",
+						"disconnected with code ",
+						e.code,
+						" and reason",
+						e.reason
+					);
+					this.emit("disconnect", e);
 					this.handleDisconnect();
 				});
-				this.ws.addEventListener('error', (e) => {
-					this.error('connection', 'error:', e);
-					this.emit('error', e);
+				this.ws.addEventListener("error", (e) => {
+					this.error("connection", "error:", e);
+					this.emit("error", e);
 					this.handleDisconnect();
 				});
-				this.ws.addEventListener('open', async () => {
+				this.ws.addEventListener("open", async () => {
 					try {
-						this.log('connection', 'connected to websockets');
+						this.log("connection", "connected to websockets");
 
 						const _ip = globalThis.localStorage
-							? globalThis.localStorage.getItem('meower_ip')
+							? globalThis.localStorage.getItem("meower_ip")
 							: null;
-						if (_ip || _ip === '') {
+						if (_ip || _ip === "") {
 							this.ip = _ip;
 						} else {
-							this.ip = await (await fetch(apiUrl + 'ip')).text();
+							this.ip = await (await fetch(apiUrl + "ip")).text();
 						}
 
 						this.send({
-							cmd: 'direct',
+							cmd: "direct",
 							val: {
-								cmd: 'ip',
+								cmd: "ip",
 								val: this.ip
 							}
 						});
@@ -188,39 +194,39 @@ export default class CloudLink extends CustomEventEmitter {
 						await sleep(100);
 
 						this.send({
-							cmd: 'direct',
-							val: { cmd: 'type', val: 'js' }
+							cmd: "direct",
+							val: { cmd: "type", val: "js" }
 						});
 
 						let req;
 						try {
 							req = await this.sendRequest({
-								cmd: 'direct',
-								val: 'meower',
-								listener: 'send_tkey'
+								cmd: "direct",
+								val: "meower",
+								listener: "send_tkey"
 							});
 							if (!req.ok) throw req.statuscode;
 							const pingInterval = setInterval(() => {
 								this.send({
-									cmd: 'ping',
-									val: ''
+									cmd: "ping",
+									val: ""
 								});
 							}, 10000);
 
 							if (this.ws)
-								this.ws.addEventListener('close', () => {
+								this.ws.addEventListener("close", () => {
 									clearInterval(pingInterval);
 								});
 							resolve();
-							this.log('connection', 'successfully connected');
+							this.log("connection", "successfully connected");
 						} catch (e) {
-							this.error('connection', 'error connecting; error:', e);
+							this.error("connection", "error connecting; error:", e);
 							reject(e);
 						}
-						this.emit('connected');
+						this.emit("connected");
 						this.handleConnect();
 					} catch (e) {
-						this.error('connection', 'error connecting:', e);
+						this.error("connection", "error connecting:", e);
 						this.disconnect();
 						reject(e);
 					}
@@ -243,7 +249,7 @@ export default class CloudLink extends CustomEventEmitter {
 	 */
 	handleDisconnect(e?: Error) {
 		if (this.intentionalDisconnect || !this.autoReconnect) {
-			this.emit('disconnected', e);
+			this.emit("disconnected", e);
 			return;
 		}
 
@@ -251,11 +257,11 @@ export default class CloudLink extends CustomEventEmitter {
 		if (this.reconnectTimeout > 0) {
 			this.reconnectBackoff += 1;
 			if (this.reconnectBackoff > 3) {
-				this.error('Could not reconnect');
-				this.emit('disconnected', e);
+				this.error("Could not reconnect");
+				this.emit("disconnected", e);
 				return;
 			}
-			this.emit('reconnecting');
+			this.emit("reconnecting");
 			setTimeout(() => {
 				if (this.serverUrl) this.connect(this.serverUrl);
 			}, this.reconnectTimeout * this.reconnectBackoff);
@@ -274,19 +280,19 @@ export default class CloudLink extends CustomEventEmitter {
 	send(data: any) {
 		if (!this.connected) {
 			// throw new Error("Not connected; use link.connect(server) to connect");
-			this.warn('warn', 'not connected');
+			this.warn("warn", "not connected");
 			return;
 		}
 
 		const logData = structuredClone(data);
 		// Censor password and IP
 		if (logData.val && logData.val.val && logData.val.val.pswd) {
-			logData.val.val.pswd = '[redacted]';
+			logData.val.val.pswd = "[redacted]";
 		}
-		if (logData.val && logData.val.cmd && logData.val.cmd === 'ip') {
-			logData.val.val = '[redacted]';
+		if (logData.val && logData.val.cmd && logData.val.cmd === "ip") {
+			logData.val.val = "[redacted]";
 		}
-		this.log('> outgoing', logData);
+		this.log("> outgoing", logData);
 
 		// @ts-ignore
 		this.ws.send(JSON.stringify(data));
@@ -296,7 +302,7 @@ export default class CloudLink extends CustomEventEmitter {
 	 * Listen for packets with specific listeners.
 	 */
 	onListener(listener: string, cb: Function): any {
-		return this.on('__listener_' + listener, cb);
+		return this.on("__listener_" + listener, cb);
 	}
 
 	/**
@@ -316,19 +322,19 @@ export default class CloudLink extends CustomEventEmitter {
 
 			const timer = setTimeout(() => {
 				returnVal.ok = false;
-				returnVal.statuscode = 'E:099 | Timed out';
+				returnVal.statuscode = "E:099 | Timed out";
 				resolve(returnVal);
 			}, 10000);
-			const ev = this.on('__listener_' + data.listener, (cmd: Packet) => {
-				if (cmd.cmd === 'statuscode') {
+			const ev = this.on("__listener_" + data.listener, (cmd: Packet) => {
+				if (cmd.cmd === "statuscode") {
 					returnVal.statuscode = cmd.val.toString();
-					returnVal.ok = returnVal.statuscode === 'I:100 | OK';
+					returnVal.ok = returnVal.statuscode === "I:100 | OK";
 
 					this.off(ev);
 					clearTimeout(timer);
 
 					resolve(returnVal);
-				} else if (cmd.cmd === 'direct') {
+				} else if (cmd.cmd === "direct") {
 					packets.push(cmd);
 				}
 			});
@@ -342,7 +348,7 @@ export default class CloudLink extends CustomEventEmitter {
 	sendRequest(data: Packet): Promise<SendListenerReturn> {
 		return this.sendListener({
 			...data,
-			listener: Date.now() + '_' + Math.random()
+			listener: Date.now() + "_" + Math.random()
 		});
 	}
 
@@ -353,14 +359,14 @@ export default class CloudLink extends CustomEventEmitter {
 	async modeRequest(data: Packet, mode: string): Promise<ModeRequestReturn> {
 		let payload: Object | undefined;
 
-		const ev = this.on('packet', (packet: ModePacket) => {
+		const ev = this.on("packet", (packet: ModePacket) => {
 			if (packet?.val?.mode !== mode) return;
 			payload = packet.val.payload;
 		});
 		const resp = await this.sendRequest(data);
 		this.off(ev);
 
-		if (!payload) throw new Error('Could not get response');
+		if (!payload) throw new Error("Could not get response");
 
 		return {
 			payload,

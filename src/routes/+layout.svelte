@@ -1,17 +1,24 @@
 <script lang="ts">
 	import {setContext, getContext, onMount} from "svelte";
+	import {writable, type Writable} from "svelte/store";
 
 	import Header from "./Header.svelte";
 	import "./styles.css";
 
 	import CloudLink from "$lib/cloudlink/cloudlink";
+	import type {User, CurrentUser} from "$lib/meower-types";
 	import {linkUrl} from "$lib/urls";
 
-	
-	
 	setContext("cl", new CloudLink());
-	const cl: CloudLink = getContext("cl");
+	setContext("user", writable(null));
 
+	const cl: CloudLink = getContext("cl");
+	const user: Writable<CurrentUser | null> = getContext("user");
+
+	// @ts-ignore
+	window.cl = cl;
+	// @ts-ignore
+	window.user = user;
 </script>
 
 <div class="app">
@@ -54,11 +61,13 @@
 
 		background-color: var(--background);
 		color: var(--foreground);
-		
+
 		font-family: Helvetica, Arial, sans-serif;
 	}
 
-	
+	main {
+		padding: 0.5em;
+	}
 
 	@media (min-width: 480px) {
 		footer {

@@ -1,3 +1,5 @@
+import type {PostJSON} from "../meower-types";
+
 /**
  * A CL Turbo packet.
  */
@@ -8,6 +10,10 @@ export interface Packet {
 	listener?: string
 }
 
+export interface UlistPacket extends Packet {
+	val: String
+}
+
 export const enum PostType {
 	NORMAL = "1",
 	INBOX = "2"
@@ -15,24 +21,7 @@ export const enum PostType {
 
 // (had a post typedef in meower.js) 
 export interface PostPacket extends Packet {
-	val: {
-		post_id: string,
-		p: string,
-		u: string,
-		type: PostType,
-		post_origin: string,
-		isDeleted: boolean,
-		t: {
-			y: string
-			mo: string,
-			d: string,
-			h: string,
-			mi: string,
-			s: string,
-			e: string
-		},
-		_id: string
-	}
+	val: PostJSON
 }
 
 export interface ListenerPacket extends Packet {

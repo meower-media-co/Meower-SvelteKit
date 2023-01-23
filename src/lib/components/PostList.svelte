@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { PostJSON } from '../meower-types';
 	import PFP from "./PFP.svelte";
 	import Container from "$lib/ui/Container.svelte";
 
@@ -28,6 +29,16 @@
 			...post,
 			id: post.post_id
 		}));
+
+        result.forEach((packet: PostJSON) => {
+            if (packet.u == "Discord" && packet.p.includes(": ")) {
+                packet.u = packet.p.split(": ")[0];
+                packet.p = packet.p.split(": ")[1];
+            }
+        });
+            
+        
+
 		return {
 			numPages,
 			result

@@ -1,10 +1,11 @@
 # Contributing to Meower SvelteKit
 
-Warning: This Is false right now. as this project is just getting started
 
 ## Branch information
 
-The main branch where development takes place is `develop`. The `main` branch is what you see at https://app.meower.org, and is merged into for each release.
+The main branch where development takes place is `develop`. The `main` branch is what you see at https://sveltekit.meower.org, and is merged into for each release.
+
+The Above is currently false, until Meower-SvelteKit 1.0.0 the `develop` branch is production.
 
 Branches are usually named like `username-branch`, where `username` is a short version of your username (like `cst`, `tnix`, et.), and `branch` is the branch name.
 
@@ -20,7 +21,7 @@ To clone and run a development server on your machine (that autoupdates when you
 
 ```
 git clone https://github.com/meower-media-co/Meower-Svelte
-cd Meower-Svelte
+cd Meower-SvelteKit
 npm install
 npm run dev
 ```
@@ -38,4 +39,4 @@ For one-time building:
 npm run build
 ```
 
-If your branch is online (not local), it will also be available in built form at `[branchname].meower-svelte.pages.dev`. A bot will post a comment about it when creating a PR.
+If your branch is online (not local), it will also be available in built form at `[branchname].meower-svelte.pages.dev`. A bot will post a comment about it when creating a PR. (Maybe, not truly set up)

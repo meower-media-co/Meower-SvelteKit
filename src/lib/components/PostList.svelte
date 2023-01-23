@@ -39,8 +39,8 @@
 		if (packet.val.post_origin !== "home") return;
 
 		if (packet.val.u == "Discord" && packet.val.p.includes(": ")) {
-			packet.val.u = packet.val.p.split(": ")[1];
-			packet.val.p = packet.val.p.split(": ")[0];
+			packet.val.u = packet.val.p.split(": ")[0];
+			packet.val.p = packet.val.p.split(": ")[1];
 		}
 
 		if (list)

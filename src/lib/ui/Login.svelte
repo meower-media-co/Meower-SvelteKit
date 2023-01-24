@@ -57,7 +57,21 @@
 		}}
 	>
 		<input type="text" bind:value={username} />
+		<br />
 		<input type="password" bind:value={pswd} />
+		<br />
 		<input type="submit" value="Login" />
 	</form>
 </div>
+
+<style lang="scss">
+	form {
+		display: flex;
+		flex-direction: column;
+	}
+
+	input {
+		margin: 0.3rem;
+		font-size: 1.2rem;
+	}
+</style>

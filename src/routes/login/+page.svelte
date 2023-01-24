@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Popup from './../lib/ui/Popup.svelte';
-	import Ulist from './../lib/ui/Ulist.svelte';
+	import Popup from '$lib/ui/Popup.svelte';
+	import Ulist from '$lib/ui/Ulist.svelte';
 	import welcome from "$lib/images/svelte-welcome.webp";
 	import welcome_fallback from "$lib/images/svelte-welcome.png";
 
@@ -17,7 +17,7 @@
 	import type {User, CurrentUser} from "$lib/meower-types";
 	import PostList from "$lib/components/PostList.svelte";
 	import Login from '$lib/ui/Login.svelte';
-
+    import { goto } from '$app/navigation';
 	
 	const cl: CloudLink = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
@@ -35,6 +35,18 @@
 </svelte:head>
 
 <Ulist />
+
+
+<Popup title="Login">
+    <Login />
+</Popup>
+
+<!-- redirect user to root if user exists -->
+{#if $user}
+    {#await goto("/")}
+       <br>
+    {/await}
+{/if}
 
 <section>
 

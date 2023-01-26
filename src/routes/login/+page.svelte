@@ -55,12 +55,28 @@
 	{/await}
 {/if}
 
+<div class="header">
+	<h1>Home</h1>
+
+	<Ulist />
+</div>
+
 <section>
 	<PostList />
 </section>
 
 <style lang="scss">
-	.login {
-		margin-bottom: 0.5em;
+	.header {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		border-color: var(--orange-button);
+		border-style: solid;
+		margin-bottom: 12px;
+	}
+
+	.header * {
+		margin: 12px;
 	}
 </style>

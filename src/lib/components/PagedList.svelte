@@ -15,8 +15,9 @@
 
 	export let items: Item[] = [];
 
-	export let loadPage: (page: number) => Promise<LoadPageReturn>
-		= async () => ({ numPages: 0, result: [] });
+	export let loadPage: (
+		page: number
+	) => Promise<LoadPageReturn> = async () => ({numPages: 0, result: []});
 
 	export const addItem = function (item: Item) {
 		id++;

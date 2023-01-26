@@ -1,6 +1,5 @@
 # Contributing to Meower SvelteKit
 
-
 ## Branch information
 
 The main branch where development takes place is `develop`. The `main` branch is what you see at https://sveltekit.meower.org, and is merged into for each release.

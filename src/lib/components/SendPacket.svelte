@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type CloudLink from "$lib/cloudlink/cloudlink";
-	import { getContext } from "svelte";
+	import {getContext} from "svelte";
 
 	const cl: CloudLink = getContext("cl");
 

@@ -6,7 +6,7 @@
 	// 32-bit UTC time (1 is 1 second instead of 1 millisecond)
 	export let date: number = 0;
 	let text: string = "if you see this, then something went very wrong";
-    let title: string = "";
+	let title: string = "";
 	$: {
 		const _date = new Date(date * 1000);
 		text = _date.toLocaleString();

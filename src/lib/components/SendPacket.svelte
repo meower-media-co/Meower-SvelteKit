@@ -1,10 +1,14 @@
 <script lang="ts">
 	import type CloudLink from "$lib/cloudlink/cloudlink";
+	import type {CurrentUser} from "$lib/meower-types";
 	import {getContext} from "svelte";
+	import type {Writable} from "svelte/store";
 
 	const cl: CloudLink = getContext("cl");
 
 	let post = "";
+
+	const user: Writable<CurrentUser | null> = getContext("user");
 
 	function sendPost() {
 		cl.send({
@@ -24,10 +28,12 @@
 	}
 </script>
 
-<form class="form" on:submit|preventDefault={sendPost}>
-	<input class="text" type="text" bind:value={post} />
-	<input type="submit" value="Post" />
-</form>
+{#if $user}
+	<form class="form" on:submit|preventDefault={sendPost}>
+		<input class="text" type="text" bind:value={post} />
+		<input type="submit" value="Post" />
+	</form>
+{/if}
 
 <style lang="scss">
 	.form {

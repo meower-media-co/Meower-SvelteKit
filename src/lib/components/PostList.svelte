@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PostJSON } from '../meower-types';
+	import type {CurrentUser, PostJSON} from "../meower-types";
 	import PFP from "./PFP.svelte";
 	import Container from "$lib/ui/Container.svelte";
 
@@ -13,7 +13,9 @@
 	import PagedList from "./PagedList.svelte";
 	import type {Item, LoadPageReturn} from "./PagedList.svelte";
 	import TimeBox from "./TimeBox.svelte";
+	import type {Writable} from "svelte/store";
 	const cl: CloudLink = getContext("cl");
+	const user: Writable<CurrentUser | null> = getContext("user");
 
 	let list: undefined | PagedList;
 
@@ -21,6 +23,7 @@
 		let numPages = 0;
 		let path = `home?page=`;
 		const resp = await cacheFetch(`https://api.meower.org/${path}${page}`);
+
 		if (!resp.ok) {
 			throw new Error("Response code is not OK; code is " + resp.status);
 		}
@@ -30,14 +33,12 @@
 			id: post.post_id
 		}));
 
-        result.forEach((packet: PostJSON) => {
-            if (packet.u == "Discord" && packet.p.includes(": ")) {
-                packet.u = packet.p.split(": ")[0];
-                packet.p = packet.p.split(": ")[1];
-            }
-        });
-            
-        
+		result.forEach((packet: PostJSON) => {
+			if (packet.u == "Discord" && packet.p.includes(": ")) {
+				packet.u = packet.p.split(": ")[0];
+				packet.p = packet.p.split(": ")[1];
+			}
+		});
 
 		return {
 			numPages,

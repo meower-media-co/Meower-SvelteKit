@@ -1,5 +1,5 @@
 const cache: {
-	[index: string]: Response
+	[index: string]: Response;
 } = {};
 
 /**
@@ -17,21 +17,24 @@ function createReusableResponse(resp: Response): Response {
 		return text;
 	}
 
-	resp.json = async function() {
-		return JSON.parse(await getText()); 
+	resp.json = async function () {
+		return JSON.parse(await getText());
 	};
-	resp.text = async function() {
-		return await getText(); 
+	resp.text = async function () {
+		return await getText();
 	};
 
 	return resp;
 }
 
-export default async function(url: string, options?: RequestInit): Promise<Response> {
-    if (cache[url]) {
-        return cache[url];
-    } else {
-        const resp = createReusableResponse(await fetch(url, options));
-		return cache[url] = resp;
-    }
+export default async function (
+	url: string,
+	options?: RequestInit
+): Promise<Response> {
+	if (cache[url]) {
+		return cache[url];
+	} else {
+		const resp = createReusableResponse(await fetch(url, options));
+		return (cache[url] = resp);
+	}
 }

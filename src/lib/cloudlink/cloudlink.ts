@@ -36,7 +36,7 @@
 
 import CustomEventEmitter from "../util/customEventEmitter";
 import sleep from "../util/sleep";
-import { apiUrl } from "../urls";
+import {apiUrl} from "../urls";
 import type {
 	Packet,
 	ListenerPacket,
@@ -195,7 +195,7 @@ export default class CloudLink extends CustomEventEmitter {
 
 						this.send({
 							cmd: "direct",
-							val: { cmd: "type", val: "js" }
+							val: {cmd: "type", val: "js"}
 						});
 
 						let req;

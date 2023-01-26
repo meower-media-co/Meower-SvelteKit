@@ -47,6 +47,9 @@
 	}
 
 	cl.on("direct", (packet: PostPacket) => {
+		if (typeof packet.val == "string") {
+			packet.val = JSON.parse(packet.val);
+		}
 		if (!packet.val.hasOwnProperty("post_origin")) return;
 		if (packet.val.post_origin !== "home") return;
 

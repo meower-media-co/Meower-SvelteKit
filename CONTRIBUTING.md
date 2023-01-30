@@ -4,9 +4,9 @@
 
 The main branch where development takes place is `develop`. The `main` branch is what you see at https://sveltekit.meower.org, and is merged into for each release.
 
-The Above is currently false, until Meower-SvelteKit 1.0.0 the `develop` branch is production.
+The above is currently false, until Meower-SvelteKit 1.0.0 the `develop` branch is production.
 
-Branches are usually named like `username-branch`, where `username` is a short version of your username (like `cst`, `tnix`, et.), and `branch` is the branch name.
+Branches are usually named like `username-branch`, where `username` is (a short version of) your username (like `cst`, `tnix`, et.), and `branch` is the branch name.
 
 ## Setting up your development environment
 

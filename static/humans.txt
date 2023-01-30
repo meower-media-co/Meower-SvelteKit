@@ -1,0 +1,56 @@
+/*  Contributors */
+
+Repo Creator: ShowierData9978
+Contact: mellfang36@gmail.com
+Github: https://github.com/showierdata9978
+from: Texas
+
+Svelte Creator: CST1229 
+Github: https://github.com/CST1229
+
+Original Meower Creator: silvxrcat
+Github: https://github.com/silvxrcat
+
+Contributers: ArrowAced
+Github: https://github.com/ArrowAced
+
+CLJS Creator: williamhorning
+Github: https://github.com/williamhorning
+
+/* Meower Team */
+
+/* NOTE: Private members where stripped out */
+https://github.com/ArrowAced
+https://github.com/BakeAPotato
+https://github.com/Bloctans
+https://github.com/CST1229
+https://github.com/Glitched-Exe
+https://github.com/gom4n
+https://github.com/heyimocto
+https://github.com/itsakuro
+https://github.com/JoshAtticus
+https://github.com/mdwalters
+https://github.com/meguy7878
+https://github.com/MikeDev101
+https://github.com/OrangeDragonDEV
+https://github.com/pixsplanet
+https://github.com/showierdata9978
+https://github.com/theotherhades
+https://github.com/TheRealOgPlayer
+https://github.com/tnix100
+https://github.com/Touchcreator
+https://github.com/underfanreal
+https://github.com/Voxalice
+https://github.com/yoo832
+https://github.com/zedthehedgehog
+
+/* THANKS */
+
+This meower client would not be possible without the hard work of SvelteJS
+https://github.com/sveltejs
+
+/* Site */
+
+	Doctype:HTML5
+	IDE: Vscode
+  Stack: SvelteKit svelte

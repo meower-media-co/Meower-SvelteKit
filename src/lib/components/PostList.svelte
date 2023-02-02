@@ -7,19 +7,62 @@
 	import SendPacket from "$lib/components/SendPacket.svelte";
 	import cacheFetch from "$lib/util/cacheFetch";
 	import type CloudLink from "$lib/cloudlink/cloudlink";
-	import type {PostPacket} from "$lib/cloudlink/cloudlink-types";
 	import type {PostListJSON, PostItem} from "$lib/meower-types";
+	import type {PostPacket} from "$lib/cloudlink/cloudlink-types";
 
 	import PagedList from "./PagedList.svelte";
 	import type {Item, LoadPageReturn} from "./PagedList.svelte";
 	import TimeBox from "./TimeBox.svelte";
 	import type {Writable} from "svelte/store";
+	import {goto} from "$app/navigation";
 	const cl: CloudLink = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
 
 	let list: undefined | PagedList;
+	export let chat = "home";
+
+	async function loadChatPage(page: number): Promise<LoadPageReturn> {
+		if ($user == null) {
+			goto(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+			return {
+				numPages: 0,
+				result: []
+			};
+		}
+
+		const resp: PostListJSON = await (
+			await cacheFetch(`https://api.meower.org/${chat}?page=${page}`, {
+				headers: {
+					Authorization: `Bearer ${$user?.token}`
+				}
+			})
+		).json();
+
+		const result: Item[] = resp.autoget.map((post) => {
+			const orginal = JSON.parse(JSON.stringify(post));
+			try {
+				if (post.u == "Discord" && post.p.includes(": ")) {
+					post.u = post.p.split(": ")[0];
+					post.p = post.p.split(": ")[1];
+				}
+			} catch (e) {
+				console.error(e);
+			}
+			return {
+				...post,
+				id: post.post_id,
+				original: orginal
+			};
+		});
+		return {
+			numPages: resp.pages,
+			result
+		};
+	}
 
 	async function loadPage(page: number = 1): Promise<LoadPageReturn> {
+		if (chat !== "home") return await loadChatPage(page);
+
 		let numPages = 0;
 		let path = `home?page=`;
 		const resp = await cacheFetch(`https://api.meower.org/${path}${page}`);
@@ -30,13 +73,18 @@
 		const json: PostListJSON = await resp.json();
 		const result: PostItem[] = json.autoget.map((post) => ({
 			...post,
-			id: post.post_id
+			id: post.post_id,
+			original: JSON.parse(JSON.stringify(post))
 		}));
 
 		result.forEach((packet: PostJSON) => {
-			if (packet.u == "Discord" && packet.p.includes(": ")) {
-				packet.u = packet.p.split(": ")[0];
-				packet.p = packet.p.split(": ")[1];
+			try {
+				if (packet.u == "Discord" && packet.p.includes(": ")) {
+					packet.u = packet.p.split(": ")[0];
+					packet.p = packet.p.split(": ")[1];
+				}
+			} catch (e) {
+				console.error(e);
 			}
 		});
 
@@ -50,18 +98,25 @@
 		if (typeof packet.val == "string") {
 			packet.val = JSON.parse(packet.val);
 		}
+
 		if (!packet.val.hasOwnProperty("post_origin")) return;
 		if (packet.val.post_origin !== "home") return;
+		var original = JSON.parse(JSON.stringify(packet.val));
 
-		if (packet.val.u == "Discord" && packet.val.p.includes(": ")) {
-			packet.val.u = packet.val.p.split(": ")[0];
-			packet.val.p = packet.val.p.split(": ")[1];
+		try {
+			if (packet.val.u == "Discord" && packet.val.p.includes(": ")) {
+				packet.val.u = packet.val.p.split(": ")[0];
+				packet.val.p = packet.val.p.split(": ")[1];
+			}
+		} catch (e) {
+			console.error(e);
 		}
 
 		if (list)
 			list.addItem({
 				...packet.val,
-				id: packet.val.post_id
+				id: packet.val.post_id,
+				original: original
 			});
 	});
 </script>

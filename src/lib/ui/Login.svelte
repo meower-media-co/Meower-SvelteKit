@@ -63,7 +63,7 @@
 		<input type="submit" value="Login" />
 	</form>
 
-	or <a href="/register">register</a>
+	or<a href="/register">register</a>
 </div>
 
 <style lang="scss">

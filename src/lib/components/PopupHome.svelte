@@ -36,7 +36,7 @@
 		UString = users.val.split(";").join(", ").toString();
 	});
 
-    export let title = "login";
+	export let title = "login";
 </script>
 
 <svelte:head>
@@ -44,10 +44,10 @@
 	<meta name="description" content="Meower SvelteKit" />
 </svelte:head>
 
-<Popup title={title}>
-    <slot name="content">
-        <Login />
-    </slot>
+<Popup {title}>
+	<slot name="content">
+		<Login />
+	</slot>
 </Popup>
 
 <!-- redirect user to root if user exists -->

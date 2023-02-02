@@ -44,8 +44,6 @@
 	<meta name="description" content="Meower SvelteKit" />
 </svelte:head>
 
-<Ulist />
-
 <Popup title={title}>
     <slot name="content">
         <Login />

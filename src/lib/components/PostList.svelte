@@ -15,6 +15,7 @@
 	import TimeBox from "./TimeBox.svelte";
 	import type {Writable} from "svelte/store";
 	import {goto} from "$app/navigation";
+	import {apiUrl} from "$lib/urls";
 	const cl: CloudLink = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
 
@@ -22,8 +23,13 @@
 	export let chat = "home";
 
 	async function loadChatPage(page: number): Promise<LoadPageReturn> {
+		if (chat == "livechat") return {numPages: 0, result: []};
 		if ($user == null) {
-			goto(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+			goto(
+				`/login?redirect=${encodeURIComponent(
+					window.location.pathname + "?id=" + chat
+				)}`
+			);
 			return {
 				numPages: 0,
 				result: []
@@ -31,10 +37,12 @@
 		}
 
 		const resp: PostListJSON = await (
-			await cacheFetch(`https://api.meower.org/${chat}?page=${page}`, {
+			await cacheFetch(`${apiUrl}posts/${chat}?page=${page}&autoget`, {
 				headers: {
-					Authorization: `Bearer ${$user?.token}`
-				}
+					token: `${$user?.token}`,
+					username: `${$user?.username}`
+				},
+				mode: "cors"
 			})
 		).json();
 
@@ -65,7 +73,9 @@
 
 		let numPages = 0;
 		let path = `home?page=`;
-		const resp = await cacheFetch(`https://api.meower.org/${path}${page}`);
+		const resp = await cacheFetch(
+			`https://api.meower.org/${path}${page}&autoget`
+		);
 
 		if (!resp.ok) {
 			throw new Error("Response code is not OK; code is " + resp.status);
@@ -100,7 +110,7 @@
 		}
 
 		if (!packet.val.hasOwnProperty("post_origin")) return;
-		if (packet.val.post_origin !== "home") return;
+		if (packet.val.post_origin !== chat) return;
 		var original = JSON.parse(JSON.stringify(packet.val));
 
 		try {
@@ -122,7 +132,7 @@
 </script>
 
 <div class="layout">
-	<SendPacket />
+	<SendPacket {chat} />
 	<PagedList bind:this={list} {loadPage}>
 		<Container slot="item" let:item={post}>
 			<div class="post-author">

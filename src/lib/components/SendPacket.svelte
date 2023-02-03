@@ -9,15 +9,29 @@
 	let post = "";
 
 	const user: Writable<CurrentUser | null> = getContext("user");
+	export let chat = "home";
 
 	function sendPost() {
-		cl.send({
-			cmd: "direct",
-			val: {
-				cmd: "post_home",
-				val: post
-			}
-		});
+		if (chat === "home") {
+			cl.send({
+				cmd: "direct",
+				val: {
+					cmd: "post_home",
+					val: post
+				}
+			});
+		} else {
+			cl.send({
+				cmd: "direct",
+				val: {
+					cmd: "post_chat",
+					val: {
+						chatid: chat,
+						p: post
+					}
+				}
+			});
+		}
 
 		post = "";
 

@@ -54,3 +54,11 @@ export interface Options {
 	logging?: boolean;
 	connect?: string | URL;
 }
+
+export interface Chat {
+	/*{ _id: "bbfdb1a3-7ff9-4752-b2cc-1757b12f9f2f", nickname: "ShowierDataHome", owner: "ShowierData9978", … }*/
+
+	_id: string;
+	nickname: string;
+	owner: string;
+}

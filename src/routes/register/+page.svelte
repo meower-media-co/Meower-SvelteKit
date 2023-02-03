@@ -15,7 +15,7 @@
 	let agree = false;
 	async function RegisterCallback() {
 		if (!agree) {
-			alert("You must agree to the terms of service");
+			alert("You must agree to the terms of service!");
 		}
 
 		const resp: ModeRequestReturn = await cl.modeRequest(
@@ -34,7 +34,7 @@
 
 		if (!resp.ok) {
 			alert("Signup failed:" + resp.statuscode);
-			throw new Error("Signup failed");
+			throw new Error("Me-owch. The signup failed.");
 		}
 
 		const _username = resp.payload.username;
@@ -71,7 +71,7 @@
 				<a href="https://meower.org/legal">Terms of Service</a>
 			</p>
 			<br />
-			<button type="submit">Signup</button>
+			<button type="submit">Sign up</button>
 		</form>
 	</svelte:fragment>
 </PopupHome>

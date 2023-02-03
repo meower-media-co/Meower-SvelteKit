@@ -7,6 +7,6 @@
 	<svelte:fragment>
 		<Login />
 		<!-- signup -->
-		or <a href="/register"> Signup </a>
+		or <a href="/register"> Sign up </a>
 	</svelte:fragment>
 </PopupHome>

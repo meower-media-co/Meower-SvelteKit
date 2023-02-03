@@ -34,7 +34,7 @@
 
 		if (!resp.ok) {
 			alert("Signup failed:" + resp.statuscode);
-			throw new Error("Me-owch. The signup failed.");
+			throw new Error("Signup failed");
 		}
 
 		const _username = resp.payload.username;

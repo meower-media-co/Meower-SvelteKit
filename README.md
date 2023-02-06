@@ -11,3 +11,5 @@ Meower Svelte But made with SvelteKit
 ## Contributing
 
 See our [Contributing File](./CONTRIBUTING.md)
+
+And for gods sake, create A PR. Dont create a commit directly ON Develop.

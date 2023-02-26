@@ -28,6 +28,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@sveltejs/adapter-static": "^1.0.5"
+		"@sveltejs/adapter-static": "^1.0.5",
+		"@williamhorning/cloudlink": "^4.0.0"
 	}
 }

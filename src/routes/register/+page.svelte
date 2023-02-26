@@ -1,14 +1,17 @@
 <script lang="ts">
+	import cacheFetch from '$lib/util/cacheFetch';
+	import type { User } from '$lib/meower-types';
 	import {goto} from "$app/navigation";
-	import type CloudLink from "$lib/cloudlink/cloudlink";
-	import type {ModeRequestReturn} from "$lib/cloudlink/cloudlink-types";
+
+	import type CloudlinkClient from "@williamhorning/cloudlink"
 	import PopupHome from "$lib/components/PopupHome.svelte";
 	import type {CurrentUser} from "$lib/meower-types";
 	import {apiUrl} from "$lib/urls";
 	import {getContext} from "svelte";
 	import type {Writable} from "svelte/store";
-	const cl: CloudLink = getContext("cl");
+	const cl: CloudlinkClient = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
+	
 
 	let username = "";
 	let pswd = "";
@@ -18,38 +21,57 @@
 			alert("You must agree to the terms of service!");
 		}
 
-		const resp: ModeRequestReturn = await cl.modeRequest(
-			{
-				cmd: "direct",
-				val: {
-					cmd: "gen_account",
-					val: {
-						username: username,
-						pswd: pswd
-					}
-				}
-			},
-			"auth"
-		);
+		const resp = await fetch(apiUrl + "v1/auth/register", {
+			method: "POST",
+			
+			//cors
 
-		if (!resp.ok) {
-			alert("Signup failed:" + resp.statuscode);
+			body: JSON.stringify ({
+				username: username,
+				password: pswd,
+				child: false
+			})
+		})
+
+		if (!(resp.status == 200)) {
+			alert("Signup failed:" + resp.status + "\n" + await resp.text());
 			throw new Error("Signup failed");
 		}
 
-		const _username = resp.payload.username;
-		const _token = resp.payload.token;
 
-		const profile = await (await fetch(`${apiUrl}/users/${_username}`)).json();
+		const data = await resp.json();
 
+		const profile: User | {"error": true, "code": Number,"message": String} = await (
+			await cacheFetch(apiUrl + "v1/users/" + data.user_id)
+		).json() 
+		
+
+		//@ts-ignore ts(2339)
 		if (profile.error === true) {
-			throw new Error(profile.type);
+			//@ts-ignore ts(2339)
+			throw new Error(profile.message);
 		}
 
+		//@ts-ignore 
+		if (cl._websocket.readyState == 1) {
+		cl.send({
+			"cmd": "authenticate",
+			val: data['access_token']
+		})
+	    } else {
+			cl.on("open", () => {
+				cl.send({
+					"cmd": "authenticate",
+					val: data['access_token']
+				})
+			})
+		}
+
+		
+
 		user.set({
-			...profile,
-			username: _username,
-			token: _token
+			...profile as User,
+			token: data['access_token']
 		});
 	}
 </script>

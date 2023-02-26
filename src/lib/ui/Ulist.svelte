@@ -1,22 +1,20 @@
 <script lang="ts">
 	import {getContext} from "svelte";
-	import type CloudLink from "$lib/cloudlink/cloudlink";
-	import type {UlistPacket} from "$lib/cloudlink/cloudlink-types";
+	import type CloudlinkClient from "@williamhorning/cloudlink"
 	import type {CurrentUser} from "$lib/meower-types";
 	import type {Writable} from "svelte/store";
 
-	const cl: CloudLink = getContext("cl");
+	const cl: CloudlinkClient = getContext("cl");
 	var UString: String = "";
-	cl.on("ulist", (users: UlistPacket) => {
-		UString = users.val.split(";").join(", ").toString();
-		UString = UString.substring(0, UString.length - 2);
+	cl.on("ulist", () => {
+		if (cl.ulist != null) {
+			UString = cl.ulist?.join(", ").toString();
+		}
 	});
 
 	const user: Writable<CurrentUser | null> = getContext("user");
 
-	user.subscribe((user) => {
-		cl.send({cmd: "direct", val: {cmd: "get_ulist", val: ""}});
-	});
+
 </script>
 
 <ulist class="userlist">

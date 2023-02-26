@@ -10,20 +10,21 @@
 	import {getContext} from "svelte";
 	import type {Writable} from "svelte/store";
 
-	import type CloudLink from "$lib/cloudlink/cloudlink";
-	import type {Packet} from "$lib/cloudlink/cloudlink-types";
+	import type CloudlinkClient from "@williamhorning/cloudlink"
 
 	import type {User, CurrentUser} from "$lib/meower-types";
 	import PostList from "$lib/components/PostList.svelte";
 	import Login from "$lib/ui/Login.svelte";
 
-	const cl: CloudLink = getContext("cl");
+	const cl: CloudlinkClient = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
 
 	let UString: String = "";
 
 	cl.on("ulist", (users: any) => {
-		UString = users.val.split(";").join(", ").toString();
+		if (cl.ulist != null) {
+			UString = cl.ulist?.join(", ").toString();
+		}
 	});
 </script>
 

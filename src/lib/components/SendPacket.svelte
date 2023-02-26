@@ -1,10 +1,11 @@
 <script lang="ts">
-	import type CloudLink from "$lib/cloudlink/cloudlink";
+	import type CloudlinkClient from "@williamhorning/cloudlink"
 	import type {CurrentUser} from "$lib/meower-types";
 	import {getContext} from "svelte";
 	import type {Writable} from "svelte/store";
+	import { apiUrl } from "$lib/urls";
 
-	const cl: CloudLink = getContext("cl");
+	const cl: CloudlinkClient = getContext("cl");
 
 	let post = "";
 
@@ -13,13 +14,16 @@
 
 	function sendPost() {
 		if (chat === "home") {
-			cl.send({
-				cmd: "direct",
-				val: {
-					cmd: "post_home",
-					val: post
-				}
-			});
+			fetch(`${apiUrl}v1/home`, {
+				method: "POST",
+				headers: {
+					Authorization: `${$user?.token}`,
+				},
+
+				body: JSON.stringify({
+					content: post
+				}),
+			})
 		} else {
 			cl.send({
 				cmd: "direct",

@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
 	export interface Item {
 		id: any;
-		[index: string]: any;
+	[index: string]: any;
 	}
 
 	export interface LoadPageReturn {

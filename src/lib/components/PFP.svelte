@@ -13,11 +13,11 @@
 
 	// get the user's pfp
 	async function getPFPNum(): Promise<String> {
-		const res: Response = await cacheFetch(`${apiUrl}/users/${username}`);
+		const res: Response = await cacheFetch(`${apiUrl}v1/users/${username}`);
 		if (!res.ok) return "err";
 
 		const data: User = await res.json();
-		return (data.pfp_data - 1).toString();
+		return (data.icon.data).toString();
 	}
 </script>
 

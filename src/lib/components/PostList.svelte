@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type {CurrentUser, PostJSON} from "../meower-types";
+	import type {CurrentUser, PostJSON, PostPacket, SubscibePacket} from "../meower-types";
 	import PFP from "./PFP.svelte";
 	import Container from "$lib/ui/Container.svelte";
 
-	import {getContext} from "svelte";
+	import {getContext, onDestroy, onMount} from "svelte";
 	import SendPacket from "$lib/components/SendPacket.svelte";
 	import cacheFetch from "$lib/util/cacheFetch";
-	import type CloudLink from "$lib/cloudlink/cloudlink";
-	import type {PostListJSON, PostItem} from "$lib/meower-types";
-	import type {PostPacket} from "$lib/cloudlink/cloudlink-types";
+
+	import type CloudlinkClient from "@williamhorning/cloudlink";	
+	import type {PostItem} from "$lib/meower-types";
 
 	import PagedList from "./PagedList.svelte";
 	import type {Item, LoadPageReturn} from "./PagedList.svelte";
@@ -16,7 +16,7 @@
 	import type {Writable} from "svelte/store";
 	import {goto} from "$app/navigation";
 	import {apiUrl} from "$lib/urls";
-	const cl: CloudLink = getContext("cl");
+	const cl: CloudlinkClient = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
 
 	let list: undefined | PagedList;
@@ -36,111 +36,123 @@
 			};
 		}
 
-		const resp: PostListJSON = await (
+		const resp: PostJSON[] = await (
 			await cacheFetch(`${apiUrl}posts/${chat}?page=${page}&autoget`, {
 				headers: {
-					token: `${$user?.token}`,
-					username: `${$user?.username}`
+					Authorization: `${$user.token}`
 				},
 				mode: "cors"
 			})
 		).json();
 
-		const result: Item[] = resp.autoget.map((post) => {
-			const orginal = JSON.parse(JSON.stringify(post));
-			try {
-				if (post.u == "Discord" && post.p.includes(": ")) {
-					post.u = post.p.split(": ")[0];
-					post.p = post.p.split(": ")[1];
-				}
-			} catch (e) {
-				console.error(e);
-			}
+		const result: Item[] = resp.map((post) => { 
 			return {
 				...post,
-				id: post.post_id,
-				original: orginal
+				id: post.id
 			};
 		});
 		return {
-			numPages: resp.pages,
+			numPages: 1,
 			result
 		};
 	}
 
 	async function loadPage(page: number = 1): Promise<LoadPageReturn> {
+		if (!$user) return {numPages: 0, result: []};
 		if (chat !== "home") return await loadChatPage(page);
 
-		let numPages = 0;
-		let path = `home?page=`;
+		let path = `v1/home/latest`;
 		const resp = await cacheFetch(
-			`https://api.meower.org/${path}${page}&autoget`
+			`${apiUrl}${path}`,
+			{
+				headers: {
+					Authorization: `${$user?.token}`,
+				},
+			}
 		);
 
 		if (!resp.ok) {
 			throw new Error("Response code is not OK; code is " + resp.status);
 		}
-		const json: PostListJSON = await resp.json();
-		const result: PostItem[] = json.autoget.map((post) => ({
+		const json: PostJSON[] = await resp.json();
+		const result: PostItem[] = json.map((post) => ({
 			...post,
-			id: post.post_id,
-			original: JSON.parse(JSON.stringify(post))
+			id: post.id,
 		}));
 
-		result.forEach((packet: PostJSON) => {
-			try {
-				if (packet.u == "Discord" && packet.p.includes(": ")) {
-					packet.u = packet.p.split(": ")[0];
-					packet.p = packet.p.split(": ")[1];
-				}
-			} catch (e) {
-				console.error(e);
-			}
-		});
 
 		return {
-			numPages,
+			numPages: 1,
 			result
 		};
 	}
 
-	cl.on("direct", (packet: PostPacket) => {
-		if (typeof packet.val == "string") {
-			packet.val = JSON.parse(packet.val);
+	cl.on("post_created", (event: CustomEvent) => {
+		//wait for the detail to be set
+		
+		const packet: PostPacket = event.detail;
+
+	
+		if (!packet)  {
+			console.error("Packet is undefined");
+			return;
 		}
 
-		if (!packet.val.hasOwnProperty("post_origin")) return;
-		if (packet.val.post_origin !== chat) return;
-		var original = JSON.parse(JSON.stringify(packet.val));
+		if (list == undefined) return;
 
-		try {
-			if (packet.val.u == "Discord" && packet.val.p.includes(": ")) {
-				packet.val.u = packet.val.p.split(": ")[0];
-				packet.val.p = packet.val.p.split(": ")[1];
-			}
-		} catch (e) {
-			console.error(e);
-		}
-
-		if (list)
 			list.addItem({
-				...packet.val,
-				id: packet.val.post_id,
-				original: original
+				...packet.val as PostJSON,
+				id: packet.val.id
 			});
 	});
+	onMount(() => (async () => {
+		//@ts-ignore
+		if (cl && cl._websocket.readyState == 1) {
+			cl.send({
+				"cmd": "subscribe",
+				"type": "new_posts",
+				"val": null
+			} as SubscibePacket);
+		} else {
+			cl.on("open", async () => {
+				// detect if the conponent is still mounted
+				cl.send({
+					"cmd": "subscribe",
+					"type": "new_posts",
+					"val": null
+				} as SubscibePacket);		
+			});
+
+		}
+	})());
+
+	onDestroy(() => {
+		cl.send({
+			"cmd": "unsubscribe",
+			"type": "new_posts",
+			"val": null
+		} as SubscibePacket);
+
+		//remove all listeners in this componen
+
+	});
+
 </script>
 
+<!-- {"cmd": "post_created", "val": {"id": "417395421443260416", "author": {"id": "417185314218442752", "username": "AAAAAAAAAAA", "flags": 0, "icon": {"type": 0, "data": 2}}, "masquerade": null, "public_flags": 0, "stats": {"likes": 0, "meows": 0, "comments": 0}, "content": "a", "filtered_content": null, "time": 1677351623, "delete_after": null}} -->
 <div class="layout">
 	<SendPacket {chat} />
 	<PagedList bind:this={list} {loadPage}>
 		<Container slot="item" let:item={post}>
+			<!-- checking for mascurade -->
+
 			<div class="post-author">
-				<PFP username={post.u} />
-				<h2>{post.u}</h2>
+				<PFP username={post.author.id} />
+				<h2>{post.author.username}</h2>
 			</div>
-			<TimeBox date={post.t.e} />
-			<p>{post.p}</p>
+
+			<TimeBox date={post.time} />
+			<p>{post.content}</p>
 		</Container>
 	</PagedList>
 </div>

@@ -4,8 +4,8 @@
 
 export const linkUrl =
 	localStorage.getItem("meower_linkurl") ||
-	"wss://api.meower.org/v0/cloudlink/";
+	"ws://localhost:3001/"; 
 export const apiUrl =
-	localStorage.getItem("meower_apiurl") || "https://api.meower.org/";
+	localStorage.getItem("meower_apiurl") || "http://localhost:3000/";
 export const encodeApiURLParams =
 	localStorage.getItem("meower_encodeapi") || false;

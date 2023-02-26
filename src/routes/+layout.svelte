@@ -5,14 +5,19 @@
 	import Header from "./Header.svelte";
 	import "./styles.css";
 
-	import CloudLink from "$lib/cloudlink/cloudlink";
+	import CloudlinkClient from "@williamhorning/cloudlink"
 	import type {User, CurrentUser} from "$lib/meower-types";
 	import {linkUrl} from "$lib/urls";
 
-	setContext("cl", new CloudLink());
+	setContext("cl", new CloudlinkClient({
+		url: linkUrl,
+		log: true
+	}));
+
+
 	setContext("user", writable(null));
 
-	const cl: CloudLink = getContext("cl");
+	const cl: CloudlinkClient = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
 
 	// @ts-ignore
@@ -25,7 +30,7 @@
 	<Header />
 
 	<main>
-		{#await cl.connect(linkUrl)}
+		{#await cl.connect()}
 			Connecting...
 		{:then}
 			<slot />

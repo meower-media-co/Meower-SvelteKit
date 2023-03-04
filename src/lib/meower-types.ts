@@ -1,7 +1,7 @@
 import type { CloudlinkPacket } from "@williamhorning/cloudlink"
 import CustomEventEmitter from "$lib/util/customEventEmitter"
 
-export interface PostJSON {
+export interface PostJSON extends Object {
 
 	"id": String,
 	"author": {
@@ -36,33 +36,46 @@ export interface PostItem extends PostJSON {
 	id: PostJSON["id"];
 }
 
-export interface PostListJSON {
+export interface PostListJSON extends Object{
 	autoget: Array<PostJSON>;
 	error: boolean;
 	"page#": number;
 	pages: number;
 }
 
-export interface PostPacket extends CloudlinkPacket {
+export interface PostPacket extends CloudlinkPacket, Object{
 	val: PostJSON;
 }
 
-export interface SubscibePacket extends CloudlinkPacket {
+export interface SubscibePacket extends CloudlinkPacket, Object {
 	cmd: "subscribe" | "unsubscribe";
 	type: "new_posts" | "users" | "posts" | "comments";
 	val: null | any;
 }
 
-export interface User {
+export interface PostUser extends Object{
+	/*
+	            "id": "419696333390086144",
+            "username": "ShowierData",
+            "flags": 0,
+            "icon": {
+                "type": 0,
+                "data": 2
+            }
+			`
+	*/
 	"id": String,
-		"username": String,
-		"flags": Number,
+	"username": String,
+	"flags": Number,
+	"icon": {
+		"type": Number,
+		"data": Number
+	}
+}
+
+export interface User extends PostUser{
 		"created": Number,
 		"theme": Object,
-		"icon": {
-			"type": Number,
-			"data": Number
-		},
 		"quote": String,
 		"badges": String[],
 		"stats": {
@@ -70,34 +83,71 @@ export interface User {
 			"following": Number,
 			"posts": Number
 		}
-
 }
 
-export class CurrentUserClass extends CustomEventEmitter implements CurrentUser {
-	constructor(
-		public id: String,
-		public username: String,
-		public flags: Number,
-		public created: Number,
-		public theme: Object,
-		public icon: {
-			type: Number,
-			data: Number
-		},
-		public quote: String,
-		public badges: String[],
-		public stats: {
-			followers: Number,
-			following: Number,
-			posts: Number
-		},
-		public token: String
-	){
-		super();
-	}
-
-}
-
-export interface CurrentUser extends User {
+export interface CurrentUser{
 	token: String;
+	session_id: String;
+	bot_session: Boolean;
+	user: User;
+	account: {
+		id: String;
+		email: String;
+		password_enabled: Boolean;
+		mfa_methods: String[];
+		last_updated: Number;
+	};
+	application: null;
+	chats: Chat[];
+	following: String[];
+	blocked: String[];
+	guardian: Object | null; //TODO: Find the type for this
+	infractions: String[];
+	time_taken: Number;
+
+
+}
+
+
+export interface Chat extends Object { 
+	/*{
+    "id": "419696456522268672",
+    "name": null,
+    "direct": true,
+    "flags": 0,
+    "members": [
+        {
+            "id": "419696333390086144",
+            "username": "ShowierData",
+            "flags": 0,
+            "icon": {
+                "type": 0,
+                "data": 2
+            }
+        },
+        {
+            "id": "0",
+            "username": "Server",
+            "flags": 1,
+            "icon": {
+                "type": 0,
+                "data": 2
+            }
+        }
+    ],
+    "permissions": {},
+    "invite_code": null,
+    "created": 1677900232
+}
+*/
+	id: String;
+	name: String;
+	direct: Boolean;
+	flags: Number;
+	members: PostUser[];
+	permissions: {
+		[key: string]: Number
+	},
+	invite_code: String;
+	created: Number;
 }

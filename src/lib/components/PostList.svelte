@@ -37,7 +37,7 @@
 		}
 
 		const resp: PostJSON[] = await (
-			await cacheFetch(`${apiUrl}posts/${chat}?page=${page}&autoget`, {
+			await cacheFetch(`${apiUrl}v1/chats/${chat}/messages`, {
 				headers: {
 					Authorization: `${$user.token}`
 				},
@@ -58,7 +58,7 @@
 	}
 
 	async function loadPage(page: number = 1): Promise<LoadPageReturn> {
-		if (!$user) return {numPages: 0, result: []};
+		
 		if (chat !== "home") return await loadChatPage(page);
 
 		let path = `v1/home/latest`;
@@ -86,53 +86,112 @@
 			result
 		};
 	}
-
-	cl.on("post_created", (event: CustomEvent) => {
-		//wait for the detail to be set
-		
-		const packet: PostPacket = event.detail;
-
 	
-		if (!packet)  {
-			console.error("Packet is undefined");
-			return;
-		}
+	onMount(() => (async () => {
+		
+		if (chat == "home") {
+			//@ts-ignore
+		cl._websocket.addEventListener("message", (event: MessageEvent) => {
 
-		if (list == undefined) return;
+			var packet: PostPacket = event.data as PostPacket;
+			if (typeof packet == "string") packet = JSON.parse(packet);
+		
+			if (!(packet.cmd == "post_created")) return; //OH MY GOD.
+		
+			// why does ts not autoextend Object?...
+			if (!packet.hasOwnProperty("val")) return;
+			if (packet.hasOwnProperty("val") && typeof packet.val == "string") packet.val = JSON.parse(packet.val) 
 
+
+			if (list == null) return; 
+
+			console.log(packet);
 			list.addItem({
 				...packet.val as PostJSON,
 				id: packet.val.id
 			});
-	});
-	onMount(() => (async () => {
+		});
+	} else {
+		//@ts-ignore
+		cl._websocket.addEventListener("message", (event: MessageEvent) => {
+
+			var packet: PostPacket = event.data as PostPacket;
+			if (typeof packet == "string") packet = JSON.parse(packet);
+		
+			if (!(packet.cmd == "message_created")) return; //OH MY GOD.
+		
+			// why does ts not autoextend Object?...
+			if (!packet.hasOwnProperty("val")) return;
+			if (packet.hasOwnProperty("val") && typeof packet.val == "string") packet.val = JSON.parse(packet.val)
+
+
+			if (list == null) return;
+
+			console.log(packet);
+			list.addItem({
+				...packet.val as PostJSON,
+				id: packet.val.id
+			});
+		});
+	}
+
+
+
+
 		//@ts-ignore
 		if (cl && cl._websocket.readyState == 1) {
+			if (chat == "home")
 			cl.send({
 				"cmd": "subscribe",
 				"type": "new_posts",
 				"val": null
 			} as SubscibePacket);
+			if (chat !== "home") {
+				cl.send({
+					"cmd": "subscribe",
+					"type": "posts",
+					"val": null,
+					"id": chat
+				} as SubscibePacket);
+			}
 		} else {
 			cl.on("open", async () => {
 				// detect if the conponent is still mounted
+				if (chat !== "home")
+				cl.send({
+					"cmd": "subscribe",
+					"type": "posts",
+					"val": null,
+					"id": chat
+				} as SubscibePacket);
+				
+				if (chat == "home")
 				cl.send({
 					"cmd": "subscribe",
 					"type": "new_posts",
 					"val": null
-				} as SubscibePacket);		
+				} as SubscibePacket);
 			});
 
 		}
 	})());
 
 	onDestroy(() => {
+		if (chat == "home")
 		cl.send({
 			"cmd": "unsubscribe",
 			"type": "new_posts",
 			"val": null
 		} as SubscibePacket);
 
+		if (chat !== "home")
+		cl.send({
+			"cmd": "unsubscribe",
+			"type": "posts",
+			"val": null,
+			"id": chat
+		} as SubscibePacket);
+		
 		//remove all listeners in this componen
 
 	});

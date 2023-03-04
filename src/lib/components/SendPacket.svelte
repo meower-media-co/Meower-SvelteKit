@@ -25,16 +25,16 @@
 				}),
 			})
 		} else {
-			cl.send({
-				cmd: "direct",
-				val: {
-					cmd: "post_chat",
-					val: {
-						chatid: chat,
-						p: post
-					}
-				}
-			});
+			fetch(`${apiUrl}v1/chats/${chat}/messages/`, {
+				method: "POST",
+				headers: {
+					Authorization: `${$user?.token}`,
+				},
+
+				body: JSON.stringify({
+					content: post
+				}),
+			})
 		}
 
 		post = "";

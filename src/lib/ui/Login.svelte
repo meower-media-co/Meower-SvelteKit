@@ -13,6 +13,7 @@
 
 	let username: string = "";
 	let pswd: string = "";
+	let token = "";
 
 	async function SubmitCallback() {
 		
@@ -30,29 +31,28 @@
 
 		const data = await resp.json();
 
-		const profile: User | {"error": true, "code": Number,"message": String} = await (
-			await cacheFetch(apiUrl +'v1/users/' + data.user_id)
-		).json() 
 		
-
-		//@ts-ignore ts(2339)
-		if (profile.error === true) {
-			//@ts-ignore ts(2339)
-			throw new Error(profile.message);
-		}
-
 		cljs.send({
 			"cmd": "authenticate",
 			val: data['access_token']
 		})
 
 		
-
-		user.set({
-			...profile as User,
-			token: data['access_token']
-		});
+		//@ts-ignore 
+		token = data['access_token'];
 	}
+
+
+	//@ts-ignore 
+	cljs._websocket.addEventListener("message", (event: MessageEvent) => {
+		const packet = JSON.parse(event.data);
+		if (packet.cmd == "ready") {
+			user.set({
+				...packet.val as CurrentUser,
+				token
+			})
+		}
+	})
 </script>
 
 <div>

@@ -4,8 +4,8 @@
 
 export const linkUrl =
 	localStorage.getItem("meower_linkurl") ||
-	"ws://localhost:3001/"; 
+	"wss://cl4dev.bettermeower.app"; 
 export const apiUrl =
-	localStorage.getItem("meower_apiurl") || "http://localhost:3000/";
+	localStorage.getItem("meower_apiurl") || "https://cl4api.bettermeower.app/";
 export const encodeApiURLParams =
 	localStorage.getItem("meower_encodeapi") || false;

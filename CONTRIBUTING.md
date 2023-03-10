@@ -19,7 +19,7 @@ Requirements:
 To clone and run a development server on your machine (that autoupdates when you modify files):
 
 ```
-git clone https://github.com/meower-media-co/Meower-Svelte
+git clone https://github.com/meower-media-co/Meower-SvelteKit.git
 cd Meower-SvelteKit
 npm install
 npm run dev
@@ -38,4 +38,4 @@ For one-time building:
 npm run build
 ```
 
-If your branch is online (not local), it will also be available in built form at `[branchname].meower-svelte.pages.dev`. A bot will post a comment about it when creating a PR. (Maybe, not truly set up)
+If your branch is online (not local), it will also be available in built form at `[branchname].meower-sveltekit.pages.dev`. A bot will post a comment about it when creating a PR. (Maybe, not truly set up)

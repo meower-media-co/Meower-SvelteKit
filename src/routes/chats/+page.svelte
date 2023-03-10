@@ -1,59 +1,52 @@
 <script lang="ts">
 	import {getContext} from "svelte";
-	import type CloudLink from "$lib/cloudlink/cloudlink";
-	import type {CurrentUser} from "$lib/meower-types";
+
+	import type CloudlinkClient from "@williamhorning/cloudlink"	
+	import type {Chat, CurrentUser} from "$lib/meower-types";
 	import type {Writable} from "svelte/store";
 	import {goto} from "$app/navigation";
 	import {onMount} from "svelte";
-	import type {Chat, ModeRequestReturn} from "$lib/cloudlink/cloudlink-types";
-
-	const cl: CloudLink = getContext("cl");
+	import type { CloudlinkPacket } from "@williamhorning/cloudlink";
+	const cl: CloudlinkClient = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
+
 	let chats: Chat[] = [];
 
 	onMount(async () => {
-		if (!$user) {
-			await goto("/login?redirect=/chats");
+		if ($user == null) {
+			goto(
+				`/login?redirect=${encodeURIComponent(
+					window.location.pathname
+				)}`
+			);
 		}
-
-		const resp: ModeRequestReturn = await cl.modeRequest(
-			{
-				cmd: "direct",
-				val: {
-					cmd: "get_chat_list",
-					val: {
-						page: 1
-					}
-				}
-			},
-			"chats"
-		);
-
-		if (!resp.ok) {
-			alert("Failed to get chat list:" + resp.statuscode);
-			throw new Error("Failed to get chat list");
-		}
-
-		chats = resp.payload.all_chats;
+		chats = $user ? $user.chats : [];
 	});
+
+	//@ts-ignore 
+	cl._websocket.addEventListener("message", (e: MessageEvent) => {
+		const data:CloudlinkPacket&Object = JSON.parse(e.data);
+		
+		if (data.cmd !== "chat_created" ) {return};
+		if (!(data.hasOwnProperty("val"))) {return};
+
+		//check if data.val is a chat
+		if (!(data.val.hasOwnProperty("id"))) {return};
+
+
+		chats.push(data.val as Chat);
+
+	});
+
 </script>
 
-<div class="chat_main_div">
-	<a href="/chat?id=livechat">
-		<div class="chat_div">
-			<div class="chat_name">
-				<h3>livechat/h3></h3>
-			</div>
-		</div>
-	</a>
-</div>
 
 {#each chats as chat}
 	<div class="chat_main_div">
-		<a href="/chat?id={chat._id}">
+		<a href="/chat?id={chat.id}">
 			<div class="chat_div">
 				<div class="chat_name">
-					<h3>{chat.nickname}</h3>
+					<h3>{chat.name}</h3>
 				</div>
 			</div>
 		</a>

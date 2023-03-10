@@ -1,53 +1,58 @@
 <script lang="ts">
-	import type {ModeRequestReturn} from "./../cloudlink/cloudlink-types";
+	
 	import {getContext, setContext} from "svelte";
-	import type {Writable} from "svelte/store";
-	import type Cloudlink from "$lib/cloudlink/cloudlink";
+	import type {Writable} from "svelte/store";	
+	import type CloudlinkClient from "@williamhorning/cloudlink"
+
 	import cacheFetch from "$lib/util/cacheFetch";
 	import type {User, CurrentUser} from "$lib/meower-types";
+	import { apiUrl } from "$lib/urls";
 
-	const cljs: Cloudlink = getContext("cl");
+	const cljs: CloudlinkClient = getContext("cl");
 	const user: Writable<CurrentUser | null> = getContext("user");
 
 	let username: string = "";
 	let pswd: string = "";
+	let token = "";
 
 	async function SubmitCallback() {
-		const resp: ModeRequestReturn = await cljs.modeRequest(
-			{
-				cmd: "direct",
-				val: {
-					cmd: "authpswd",
-					val: {
-						username: username,
-						pswd: pswd
-					}
-				}
-			},
-			"auth"
-		);
+		
+		const resp = await fetch(apiUrl + "v1/auth/password", {
+			method: "POST",
+			body: JSON.stringify({
+				username: username,
+				password: pswd
+			})
+		})
 
 		if (!resp.ok) {
 			throw new Error("Login failed");
 		}
 
-		const _username = resp.payload.username;
-		const _token = resp.payload.token;
+		const data = await resp.json();
 
-		const profile: User | {error: true; type: string} = await (
-			await cacheFetch("https://api.meower.org/users/" + _username)
-		).json();
+		
+		cljs.send({
+			"cmd": "authenticate",
+			val: data['access_token']
+		})
 
-		if (profile.error === true) {
-			throw new Error(profile.type);
-		}
-
-		user.set({
-			...profile,
-			username: _username,
-			token: _token
-		});
+		
+		//@ts-ignore 
+		token = data['access_token'];
 	}
+
+
+	//@ts-ignore 
+	cljs._websocket.addEventListener("message", (event: MessageEvent) => {
+		const packet = JSON.parse(event.data);
+		if (packet.cmd == "ready") {
+			user.set({
+				...packet.val as CurrentUser,
+				token
+			})
+		}
+	})
 </script>
 
 <div>

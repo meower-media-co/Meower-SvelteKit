@@ -1,21 +1,24 @@
 <script lang="ts">
 	import {linkUrl} from "$lib/urls";
-	import type {User} from "$lib/meower-types";
+	import type {CurrentUser} from "$lib/meower-types";
 	import {page} from "$app/stores"; // Do we need the page store?
 	import logo from "$lib/images/svelte-logo.svg";
 	import github from "$lib/images/github.svg";
-	import type CloudLink from "$lib/cloudlink/cloudlink";
+	import type CloudlinkClient from "@williamhorning/cloudlink"
 
 	import {getContext} from "svelte";
 	import type {Writable} from "svelte/store";
 
-	var user: Writable<User | null> = getContext("user");
-	const cl: CloudLink = getContext("cl");
+	var user: Writable<CurrentUser | null> = getContext("user");
+	const cl: CloudlinkClient = getContext("cl");
 
 	function logout() {
 		user.set(null);
 		cl.disconnect();
-		cl.connect(linkUrl);
+		cl.connect({
+			url: linkUrl,
+			log: true
+		});
 	}
 </script>
 

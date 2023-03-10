@@ -30,7 +30,7 @@
 					<li
 						aria-current={$page.url.pathname === "/chats" ? "page" : undefined}
 					>
-						<a href="/chats">chats</a>
+						<a href="/chats">Chats</a>
 					</li>
 				{/if}
 				<li aria-current={$page.url.pathname === "/about" ? "page" : undefined}>

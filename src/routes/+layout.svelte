@@ -1,19 +1,45 @@
 <script lang="ts">
-	import Header from './Header.svelte';
-	import { cl, user, getStore, apiOpts } from '$lib/util';
-	window.SvelteKit = {
-		cl,
-		user,
-    getStore,
-    apiOpts
-	};
+	import {setContext, getContext, onMount} from "svelte";
+	import {writable, type Writable} from "svelte/store";
+
+	import Header from "./Header.svelte";
+	import "./styles.css";
+
+	import CloudlinkClient from "@williamhorning/cloudlink"
+	import type {User, CurrentUser} from "$lib/meower-types";
+	import {linkUrl} from "$lib/urls";
+
+	setContext("cl", new CloudlinkClient({
+		url: linkUrl,
+		log: true
+	}));
+
+
+	setContext("user", writable(null));
+
+	const cl: CloudlinkClient = getContext("cl");
+	const user: Writable<CurrentUser | null> = getContext("user");
+
+	// @ts-ignore
+	window.cl = cl;
+	// @ts-ignore
+	window.user = user;
 </script>
 
 <div class="app">
 	<Header />
+
 	<main>
-		<slot />
+		{#await cl.connect()}
+			Connecting...
+		{:then}
+			<slot />
+		{:catch e}
+			Error connecting: {e}
+		{/await}
 	</main>
+
+	<footer />
 </div>
 
 <style lang="scss">
@@ -41,10 +67,16 @@
 		background-color: var(--background);
 		color: var(--foreground);
 
-		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+		font-family: Helvetica, Arial, sans-serif;
 	}
 
 	main {
 		padding: 0.5em;
+	}
+
+	@media (min-width: 480px) {
+		footer {
+			padding: 12px 0;
+		}
 	}
 </style>

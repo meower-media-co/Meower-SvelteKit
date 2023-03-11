@@ -1,102 +1,218 @@
 <script lang="ts">
-	import type { PostJSON, PostPacket, SubscibePacket } from '../meower-types';
-	import type { Item, LoadPageReturn } from './PagedList.svelte';
-	import { user, cl, apiOpts, cacheFetch } from '$lib/util';
-	import { onDestroy, onMount } from 'svelte';
-	import SendPacket from '$lib/components/SendPacket.svelte';
-	import PagedList from './PagedList.svelte';
-	import TimeBox from './TimeBox.svelte';
+	import type {CurrentUser, PostJSON, PostPacket, SubscibePacket} from "../meower-types";
+	import PFP from "./PFP.svelte";
+	import Container from "$lib/ui/Container.svelte";
+
+	import {getContext, onDestroy, onMount} from "svelte";
+	import SendPacket from "$lib/components/SendPacket.svelte";
+	import cacheFetch from "$lib/util/cacheFetch";
+
+	import type CloudlinkClient from "@williamhorning/cloudlink";	
+	import type {PostItem} from "$lib/meower-types";
+
+	import PagedList from "./PagedList.svelte";
+	import type {Item, LoadPageReturn} from "./PagedList.svelte";
+	import TimeBox from "./TimeBox.svelte";
+	import type {Writable} from "svelte/store";
+	import {goto} from "$app/navigation";
+	import {apiUrl} from "$lib/urls";
+	const cl: CloudlinkClient = getContext("cl");
+	const user: Writable<CurrentUser | null> = getContext("user");
 
 	let list: undefined | PagedList;
-	export let chat = 'home';
+	export let chat = "home";
 
-	async function loadPage(): Promise<LoadPageReturn> {
-		if (chat == 'livechat') return { numPages: 0, result: [] };
-		if (chat !== 'home') {
-			document.location.assign(
+	async function loadChatPage(page: number): Promise<LoadPageReturn> {
+		if (chat == "livechat") return {numPages: 0, result: []};
+		if ($user == null) {
+			goto(
 				`/login?redirect=${encodeURIComponent(
-					window.location.pathname + '?id=' + chat
+					window.location.pathname + "?id=" + chat
 				)}`
 			);
-			return { numPages: 0, result: [] };
-		}
-		let endpoint =
-			chat == 'home' ? 'v1/home/latest' : `v1/chats/${chat}/messages`;
-		const resp = await cacheFetch(`${apiOpts.apiBaseUrl}${endpoint}`, {
-			headers: {
-				Authorization: `${$user?.token}`
-			}
-		});
-
-		if (!resp.ok) {
-			throw new Error('Response code is not OK; code is ' + resp.status);
+			return {
+				numPages: 0,
+				result: []
+			};
 		}
 
-		return {
-			numPages: 1,
-			result: (await resp.json()).map((post: Item) => ({
+		const resp: PostJSON[] = await (
+			await cacheFetch(`${apiUrl}v1/chats/${chat}/messages`, {
+				headers: {
+					Authorization: `${$user.token}`
+				},
+				mode: "cors"
+			})
+		).json();
+
+		const result: Item[] = resp.map((post) => { 
+			return {
 				...post,
 				id: post.id
-			})) as Item[]
+			};
+		});
+		return {
+			numPages: 1,
+			result
 		};
 	}
 
-	onMount(() => {
-		$cl.on(
-			chat == 'home' ? 'post_created' : 'message_created',
-			(packet: PostPacket) => {
-				if (!packet.val || list == null) return;
-				if (typeof packet.val == 'string') packet.val = JSON.parse(packet.val);
-				list.addItem({
-					...(packet.val as PostJSON),
-					id: packet.val.id
-				});
+	async function loadPage(page: number = 1): Promise<LoadPageReturn> {
+		
+		if (chat !== "home") return await loadChatPage(page);
+
+		let path = `v1/home/latest`;
+		const resp = await cacheFetch(
+			`${apiUrl}${path}`,
+			{
+				headers: {
+					Authorization: `${$user?.token}`,
+				},
 			}
 		);
 
-		let subscribe = async () => {
-			await $cl.send({
-				cmd: 'subscribe',
-				// @ts-ignore
-				type: chat == 'home' ? 'new_posts' : 'posts',
-				id: chat == 'home' ? undefined : chat
-			});
-		};
-		// @ts-ignore
-		if ($cl.status == 1) {
-			subscribe();
-		} else {
-			$cl.on('open', subscribe);
+		if (!resp.ok) {
+			throw new Error("Response code is not OK; code is " + resp.status);
 		}
-	});
+		const json: PostJSON[] = await resp.json();
+		const result: PostItem[] = json.map((post) => ({
+			...post,
+			id: post.id,
+		}));
+
+
+		return {
+			numPages: 1,
+			result
+		};
+	}
+	
+	onMount(() => (async () => {
+		
+		if (chat == "home") {
+			//@ts-ignore
+		cl._websocket.addEventListener("message", (event: MessageEvent) => {
+
+			var packet: PostPacket = event.data as PostPacket;
+			if (typeof packet == "string") packet = JSON.parse(packet);
+		
+			if (!(packet.cmd == "post_created")) return; //OH MY GOD.
+		
+			// why does ts not autoextend Object?...
+			if (!packet.hasOwnProperty("val")) return;
+			if (packet.hasOwnProperty("val") && typeof packet.val == "string") packet.val = JSON.parse(packet.val) 
+
+
+			if (list == null) return; 
+
+			console.log(packet);
+			list.addItem({
+				...packet.val as PostJSON,
+				id: packet.val.id
+			});
+		});
+	} else {
+		//@ts-ignore
+		cl._websocket.addEventListener("message", (event: MessageEvent) => {
+
+			var packet: PostPacket = event.data as PostPacket;
+			if (typeof packet == "string") packet = JSON.parse(packet);
+		
+			if (!(packet.cmd == "message_created")) return; //OH MY GOD.
+		
+			// why does ts not autoextend Object?...
+			if (!packet.hasOwnProperty("val")) return;
+			if (packet.hasOwnProperty("val") && typeof packet.val == "string") packet.val = JSON.parse(packet.val)
+
+
+			if (list == null) return;
+
+			console.log(packet);
+			list.addItem({
+				...packet.val as PostJSON,
+				id: packet.val.id
+			});
+		});
+	}
+
+
+
+
+		//@ts-ignore
+		if (cl && cl._websocket.readyState == 1) {
+			if (chat == "home")
+			cl.send({
+				"cmd": "subscribe",
+				"type": "new_posts",
+				"val": null
+			} as SubscibePacket);
+			if (chat !== "home") {
+				cl.send({
+					"cmd": "subscribe",
+					"type": "posts",
+					"val": null,
+					"id": chat
+				} as SubscibePacket);
+			}
+		} else {
+			cl.on("open", async () => {
+				// detect if the conponent is still mounted
+				if (chat !== "home")
+				cl.send({
+					"cmd": "subscribe",
+					"type": "posts",
+					"val": null,
+					"id": chat
+				} as SubscibePacket);
+				
+				if (chat == "home")
+				cl.send({
+					"cmd": "subscribe",
+					"type": "new_posts",
+					"val": null
+				} as SubscibePacket);
+			});
+
+		}
+	})());
 
 	onDestroy(() => {
-		$cl.send({
-			cmd: 'unsubscribe',
-			type: chat == 'home' ? 'new_posts' : 'posts',
-			val: null
+		if (chat == "home")
+		cl.send({
+			"cmd": "unsubscribe",
+			"type": "new_posts",
+			"val": null
 		} as SubscibePacket);
+
+		if (chat !== "home")
+		cl.send({
+			"cmd": "unsubscribe",
+			"type": "posts",
+			"val": null,
+			"id": chat
+		} as SubscibePacket);
+		
+		//remove all listeners in this componen
+
 	});
+
 </script>
 
+<!-- {"cmd": "post_created", "val": {"id": "417395421443260416", "author": {"id": "417185314218442752", "username": "AAAAAAAAAAA", "flags": 0, "icon": {"type": 0, "data": 2}}, "masquerade": null, "public_flags": 0, "stats": {"likes": 0, "meows": 0, "comments": 0}, "content": "a", "filtered_content": null, "time": 1677351623, "delete_after": null}} -->
 <div class="layout">
 	<SendPacket {chat} />
 	<PagedList bind:this={list} {loadPage}>
-		<container slot="item" let:item={post}>
-			<div>
-				<div class="post-author">
-					<img
-						alt="{post.author.username}'s profile picture"
-						src="{apiOpts.apiBaseUrl}v1/profiles/{post.author.username}.png"
-						width="50px"
-					/>
-					<h2>{post.author.username}</h2>
-					<TimeBox date={post.time} />
-				</div>
+		<Container slot="item" let:item={post}>
+			<!-- checking for mascurade -->
 
-				<p>{post.content}</p>
+			<div class="post-author">
+				<PFP username={post.author.id} />
+				<h2>{post.author.username}</h2>
 			</div>
-		</container>
+
+			<TimeBox date={post.time} />
+			<p>{post.content}</p>
+		</Container>
 	</PagedList>
 </div>
 
@@ -105,6 +221,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5em;
+
+		* {
+			width: 100%;
+		}
 	}
 	.post-author {
 		display: flex;
@@ -114,13 +234,5 @@
 			font-size: 200%;
 			margin: 0;
 		}
-	}
-
-	container > div {
-		background-color: var(--background);
-		border: solid 2px var(--orange);
-		border-radius: 1px;
-		padding: 0.6em;
-		margin-bottom: 0.4em;
 	}
 </style>

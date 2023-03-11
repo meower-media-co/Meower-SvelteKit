@@ -1,29 +1,48 @@
 <script lang="ts">
-	import { user, apiOpts } from '$lib/util';
+	import type CloudlinkClient from "@williamhorning/cloudlink"
+	import type {CurrentUser} from "$lib/meower-types";
+	import {getContext} from "svelte";
+	import type {Writable} from "svelte/store";
+	import { apiUrl } from "$lib/urls";
 
-	let post = '';
+	const cl: CloudlinkClient = getContext("cl");
 
-	export let chat = 'home';
+	let post = "";
+
+	const user: Writable<CurrentUser | null> = getContext("user");
+	export let chat = "home";
 
 	function sendPost() {
-    if ($user === null) return;
-		let endpoint = chat === 'home' ? 'v1/home' : `v1/chats/${chat}/messages/`;
+		if (chat === "home") {
+			fetch(`${apiUrl}v1/home`, {
+				method: "POST",
+				headers: {
+					Authorization: `${$user?.token}`,
+				},
 
-		fetch(`${apiOpts.apiBaseUrl}${endpoint}`, {
-			method: 'POST',
-			headers: {
-				Authorization: `${$user.token}`
-			},
-			body: JSON.stringify({
-				content: post
+				body: JSON.stringify({
+					content: post
+				}),
 			})
-		});
+		} else {
+			fetch(`${apiUrl}v1/chats/${chat}/messages/`, {
+				method: "POST",
+				headers: {
+					Authorization: `${$user?.token}`,
+				},
 
-		post = '';
+				body: JSON.stringify({
+					content: post
+				}),
+			})
+		}
 
+		post = "";
+
+		// clear the input
 		const input: HTMLInputElement | null =
 			document.querySelector('input[type="text"]');
-		if (input) input.value = '';
+		if (input) input.value = "";
 	}
 </script>
 

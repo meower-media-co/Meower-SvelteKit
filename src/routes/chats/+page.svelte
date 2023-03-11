@@ -1,49 +1,41 @@
 <script lang="ts">
-	import {getContext} from "svelte";
-
-	import type CloudlinkClient from "@williamhorning/cloudlink"	
-	import type {Chat, CurrentUser} from "$lib/meower-types";
-	import type {Writable} from "svelte/store";
-	import {goto} from "$app/navigation";
-	import {onMount} from "svelte";
-	import type { CloudlinkPacket } from "@williamhorning/cloudlink";
-	const cl: CloudlinkClient = getContext("cl");
-	const user: Writable<CurrentUser | null> = getContext("user");
+	import type { CloudlinkPacket } from '@williamhorning/cloudlink';
+	import type { Chat } from '$lib/meower-types';
+	import { onMount } from 'svelte';
+	import { user, cl, apiOpts } from '$lib/util';
 
 	let chats: Chat[] = [];
 
 	onMount(async () => {
 		if ($user == null) {
-			goto(
-				`/login?redirect=${encodeURIComponent(
-					window.location.pathname
-				)}`
+			window.location.assign(
+				`/login?redirect=${encodeURIComponent(window.location.pathname)}`
 			);
 		}
-		chats = $user ? $user.chats : [];
+		chats = [
+			...(await (
+				await fetch(`${apiOpts.apiBaseUrl}v1/me/chats`, {
+					headers: {
+						Authorization: `${$user?.token}`
+					}
+				})
+			).json()),
+			{
+				id: 'livechat',
+				name: 'Livechat'
+			}
+		];
 	});
 
-	//@ts-ignore 
-	cl._websocket.addEventListener("message", (e: MessageEvent) => {
-		const data:CloudlinkPacket&Object = JSON.parse(e.data);
-		
-		if (data.cmd !== "chat_created" ) {return};
-		if (!(data.hasOwnProperty("val"))) {return};
-
-		//check if data.val is a chat
-		if (!(data.val.hasOwnProperty("id"))) {return};
-
-
+	$cl.on('chat_created', (data: CloudlinkPacket) => {
+		if (!data.val || !data.val.id) return;
 		chats.push(data.val as Chat);
-
 	});
-
 </script>
-
 
 {#each chats as chat}
 	<div class="chat_main_div">
-		<a href="/chat?id={chat.id}">
+		<a href="/chats/{chat.id}">
 			<div class="chat_div">
 				<div class="chat_name">
 					<h3>{chat.name}</h3>

@@ -1,24 +1,10 @@
 <script lang="ts">
-	import {linkUrl} from "$lib/urls";
-	import type {CurrentUser} from "$lib/meower-types";
-	import {page} from "$app/stores"; // Do we need the page store?
-	import logo from "$lib/images/svelte-logo.svg";
-	import github from "$lib/images/github.svg";
-	import type CloudlinkClient from "@williamhorning/cloudlink"
-
-	import {getContext} from "svelte";
-	import type {Writable} from "svelte/store";
-
-	var user: Writable<CurrentUser | null> = getContext("user");
-	const cl: CloudlinkClient = getContext("cl");
+	import { user, cl } from '$lib/util';
 
 	function logout() {
 		user.set(null);
-		cl.disconnect();
-		cl.connect({
-			url: linkUrl,
-			log: true
-		});
+		$cl.disconnect();
+		$cl.connect();
 	}
 </script>
 
@@ -26,28 +12,19 @@
 	<div class="corner">
 		<nav>
 			<ul>
-				<li aria-current={$page.url.pathname === "/" ? "page" : undefined}>
+				<li
+					aria-current={document.location.pathname === '/' ? 'page' : undefined}
+				>
 					<a href="/">Home</a>
 				</li>
-				{#if $user}
+				{#if $user !== null}
 					<li
-						aria-current={$page.url.pathname === "/chats" ? "page" : undefined}
+						aria-current={document.location.pathname.startsWith('/chats')
+							? 'page'
+							: undefined}
 					>
-						<a href="/chats">chats</a>
+						<a href="/chats">Chats</a>
 					</li>
-				{/if}
-				<li aria-current={$page.url.pathname === "/about" ? "page" : undefined}>
-					<a href="/changelog">ChangeLog</a>
-				</li>
-
-				{#if !$user}
-					<li
-						aria-current={$page.url.pathname === "/login" ? "page" : undefined}
-						class="side-right"
-					>
-						<a href="/login?redirect=/">Login</a>
-					</li>
-				{:else}
 					<li class="side-right">
 						<a
 							href="/"
@@ -56,6 +33,15 @@
 								return 0;
 							}}>Logout</a
 						>
+					</li>
+				{:else}
+					<li
+						aria-current={document.location.pathname === '/login'
+							? 'page'
+							: undefined}
+						class="side-right"
+					>
+						<a href="/login?redirect=/">Login</a>
 					</li>
 				{/if}
 			</ul>

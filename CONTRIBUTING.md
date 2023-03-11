@@ -1,41 +1,35 @@
-# Contributing to Meower SvelteKit
+# Contributing to SvelteKit Client (Meower-SvelteKit)
 
-## Branch information
+## Branch info
 
-The main branch where development takes place is `develop`. The `main` branch is what you see at https://sveltekit.meower.org, and is merged into for each release.
+Development takes place on the `develop` branch, with `main` being the production branch which you see at https://sveltekit.meower.org.
 
-The Above is currently false, until Meower-SvelteKit 1.0.0 the `develop` branch is production.
+The `development` branch is merged into `main` for each release. Please do not commit directly to `main` or `develop` unless you are a maintainer.
 
-Branches are usually named like `username-branch`, where `username` is a short version of your username (like `cst`, `tnix`, et.), and `branch` is the branch name.
+Other branches should be used for specific features, and should be merged into `develop` when ready. Try to name them your username and the feature name, like `tnix/cool-feature`.
 
 ## Setting up your development environment
 
 Requirements:
 
-- node.js and npm or some other package manager
-- git and some knowledge of it
-- Preferably understanding of JavaScript and node.js, among ~~us~~ other things
+- Node 16 or higher (18 is recommended)
+- Yarn 1 (do not use Yarn 2)
+- Git
 
-To clone and run a development server on your machine (that autoupdates when you modify files):
+To clone and run a development server on your machine (with hot reloading and your own branch):
 
-```
+```sh
+# clones the repo and creates a new branch called your-branch-name that's based on develop
 git clone https://github.com/meower-media-co/Meower-Svelte
 cd Meower-SvelteKit
-npm install
-npm run dev
+git switch develop
+git branch your-branch-name
+# install dependencies
+yarn
+# start a dev server
+yarn dev
 ```
 
-(Typically you usually also create a new branch for your work:)
+## Building for prod
 
-```
-git branch person-branch
-git checkout person-branch
-```
-
-For one-time building:
-
-```
-npm run build
-```
-
-If your branch is online (not local), it will also be available in built form at `[branchname].meower-svelte.pages.dev`. A bot will post a comment about it when creating a PR. (Maybe, not truly set up)
+To build the app for prod all you need to do is run `yarn build`. This will create a `build` folder with the compiled app. If you push to Github, Cloudflare Pages will create a preview URL for you are `https://[branchname].meower-svelte.pages.dev`.

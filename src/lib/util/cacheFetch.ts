@@ -2,10 +2,7 @@ const cache: {
 	[index: string]: Response;
 } = {};
 
-/**
- * Create a Response whose .json() and .text() functions can be
- * called multiple times.
- */
+// Create a Response where .json() and .text() functions can be called multiple times.
 function createReusableResponse(resp: Response): Response {
 	const ogText = resp.text;
 

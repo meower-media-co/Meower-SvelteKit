@@ -37,7 +37,7 @@ export default function cacheStore(
 	localStorageKey: string
 ) {
 	thingToCache.set(
-		JSON.parse(localStorage.getItem(localStorageKey) || '') || thingToCache
+		JSON.parse(String(localStorage.getItem(localStorageKey))) || thingToCache
 	);
 	thingToCache.subscribe((value) => {
 		localStorage.setItem(localStorageKey, JSON.stringify(value));

@@ -5,6 +5,7 @@
 		user.set(null);
 		$cl.disconnect();
 		$cl.connect();
+		window.location.reload();
 	}
 </script>
 

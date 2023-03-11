@@ -1,15 +1,11 @@
-# Meower-SvelteKit
+# SvelteKit Client (Meower-SvelteKit)
 
-Meower Svelte But made with SvelteKit
+SvelteKit Client is the newest Meower Client that will eventually replace the other two official clients.
 
 ## Our Contributors
 
-<a href="https://github.com/meower-media-co/Meower-SvelteKit/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=meower-media-co/Meower-SvelteKit" />
-</a>
+[![Contributors](https://contrib.rocks/image?repo=meower-media-co/Meower-SvelteKit)](https://github.com/meower-media-co/Meower-SvelteKit/graphs/contributors)
 
 ## Contributing
 
 See our [Contributing File](./CONTRIBUTING.md)
-
-And for gods sake, create A PR. Dont create a commit directly ON Develop.

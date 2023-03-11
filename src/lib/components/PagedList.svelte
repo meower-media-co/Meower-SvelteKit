@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
 	export interface Item {
 		id: any;
-	[index: string]: any;
+		[index: string]: any;
 	}
 
 	export interface LoadPageReturn {
@@ -11,13 +11,13 @@
 </script>
 
 <script lang="ts">
-	import Loading from "$lib/ui/Loading.svelte";
+	import Loading from '$lib/components/Loading.svelte';
 
 	export let items: Item[] = [];
 
 	export let loadPage: (
 		page: number
-	) => Promise<LoadPageReturn> = async () => ({numPages: 0, result: []});
+	) => Promise<LoadPageReturn> = async () => ({ numPages: 0, result: [] });
 
 	export const addItem = function (item: Item) {
 		id++;
@@ -34,7 +34,6 @@
 		pageLoading = true;
 		try {
 			// 25 posts per page...
-			let realPage = page + Math.floor(itemOffset / itemsPerPage);
 			let realOffset = itemOffset % itemsPerPage;
 			const first = await loadPage(page);
 			let realItems = first.result;

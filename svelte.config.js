@@ -10,7 +10,7 @@ const config = {
       fallback: '404.html'
     }),
     prerender: {
-      entries: ['*', '/chats/a'],
+      entries: ['*', '/app/chats/a'],
     },
   },
 };

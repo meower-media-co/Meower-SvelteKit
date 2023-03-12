@@ -9,22 +9,16 @@
 	onMount(async () => {
 		if ($user == null) {
 			window.location.assign(
-				`/login?redirect=${encodeURIComponent(window.location.pathname)}`
+				`/app/login?redirect=${encodeURIComponent(window.location.pathname)}`
 			);
 		}
-		chats = [
-			...(await (
-				await fetch(`${apiOpts.apiBaseUrl}v1/me/chats`, {
-					headers: {
-						Authorization: `${$user?.token}`
-					}
-				})
-			).json()),
-			{
-				id: 'livechat',
-				name: 'Livechat'
-			}
-		];
+		chats = await (
+			await fetch(`${apiOpts.apiBaseUrl}v1/me/chats`, {
+				headers: {
+					Authorization: `${$user?.token}`
+				}
+			})
+		).json();
 	});
 
 	$cl.on('chat_created', (data: CloudlinkPacket) => {
@@ -34,8 +28,8 @@
 </script>
 
 {#each chats as chat}
-	<div class="chat_main_div">
-		<a href="/chats/{chat.id}">
+	<div class="chat_main_div mktn nopad">
+		<a href="/app/chats/{chat.id}">
 			<div class="chat_div">
 				<div class="chat_name">
 					<h3>{chat.name}</h3>

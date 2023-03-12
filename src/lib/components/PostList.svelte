@@ -12,9 +12,9 @@
 
 	async function loadPage(): Promise<LoadPageReturn> {
 		if (chat == 'livechat') return { numPages: 0, result: [] };
-		if (chat !== 'home') {
+		if (chat !== 'home' && $user === null) {
 			document.location.assign(
-				`/login?redirect=${encodeURIComponent(
+				`/app/login?redirect=${encodeURIComponent(
 					window.location.pathname + '?id=' + chat
 				)}`
 			);
@@ -53,29 +53,6 @@
 				});
 			}
 		);
-
-		let subscribe = async () => {
-			await $cl.send({
-				cmd: 'subscribe',
-				// @ts-ignore
-				type: chat == 'home' ? 'new_posts' : 'posts',
-				id: chat == 'home' ? undefined : chat
-			});
-		};
-		// @ts-ignore
-		if ($cl.status == 1) {
-			subscribe();
-		} else {
-			$cl.on('open', subscribe);
-		}
-	});
-
-	onDestroy(() => {
-		$cl.send({
-			cmd: 'unsubscribe',
-			type: chat == 'home' ? 'new_posts' : 'posts',
-			val: null
-		} as SubscibePacket);
 	});
 </script>
 
@@ -105,6 +82,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5em;
+    width: 100%;
 	}
 	.post-author {
 		display: flex;

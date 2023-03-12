@@ -52,7 +52,7 @@ export default async function handleSubmit(
 
 	window.location.assign(
 		decodeURIComponent(
-			new URLSearchParams(window.location.search).get('redirect') || '/'
+			new URLSearchParams(window.location.search).get('redirect') || '/app'
 		)
 	);
 }

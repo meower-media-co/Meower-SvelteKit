@@ -1,35 +1,9 @@
-<script lang="ts">
-	import Ulist from '$lib/components/Ulist.svelte';
-	import PostList from '$lib/components/PostList.svelte';
-</script>
-
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Meower SvelteKit" />
+	<title>Meower Media</title>
 </svelte:head>
 
-<div class="header">
-	<h1>Home</h1>
-
-	<Ulist />
+<div class="mktn">
+	<h1>the meower project</h1>
+	<h2>a <i>state-of-the-art</i> social media platform for <i>everyone</i></h2>
+	<h3><a href="/app">login -></a></h3>
 </div>
-
-<section>
-	<PostList />
-</section>
-
-<style lang="scss">
-	.header {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-
-		border-color: var(--orange-button);
-		border-style: solid;
-		margin-bottom: 12px;
-	}
-
-	.header * {
-		margin: 12px;
-	}
-</style>

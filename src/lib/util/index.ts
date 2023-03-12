@@ -2,6 +2,7 @@ import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
 import CloudlinkClient from '@williamhorning/cloudlink';
 import type { CurrentUser } from '$lib/meower-types';
+import { get as getStore } from 'svelte/store';
 
 export class ApiOpts {
 	constructor() {}
@@ -66,6 +67,12 @@ export function handle32bitdate(dat: number, hour12: boolean = false) {
 	};
 }
 
-export { get as getStore } from 'svelte/store';
+export function logout() {
+	user.set(null);
+	getStore(cl).disconnect();
+	getStore(cl).connect();
+}
+
+export { getStore };
 export { default as cacheFetch } from './cacheFetch';
 export { default as handleSubmit } from './login';

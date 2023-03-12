@@ -2,4 +2,4 @@
 	import PostList from '$lib/components/PostList.svelte';
 </script>
 
-<PostList chat={document.location.pathname.split('/')[2] || 'livechat'} />
+<PostList chat={document.location.pathname.split('/')[3] || 'livechat'} />

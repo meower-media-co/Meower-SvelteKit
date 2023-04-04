@@ -6,18 +6,13 @@ import type { CurrentUser } from '$lib/meower-types';
 export class ApiOpts {
 	constructor() {}
 	get cloudlink4Url() {
-		return (
-			localStorage.getItem('meower_linkurl') || 'wss://cl4dev.bettermeower.app'
-		);
+		return localStorage.getItem('meower_linkurl') || 'http://127.0.0.1:3001';
 	}
 	set cloudlink4Url(url: string) {
 		localStorage.setItem('meower_linkurl', url);
 	}
 	get apiBaseUrl() {
-		return (
-			localStorage.getItem('meower_apiurl') ||
-			'https://cl4api.bettermeower.app/'
-		);
+		return localStorage.getItem('meower_apiurl') || 'http://127.0.0.1:3000';
 	}
 	set apiBaseUrl(url: string) {
 		localStorage.setItem('meower_apiurl', url);

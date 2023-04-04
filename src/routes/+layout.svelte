@@ -4,8 +4,8 @@
 	window.SvelteKit = {
 		cl,
 		user,
-    getStore,
-    apiOpts
+		getStore,
+		apiOpts
 	};
 </script>
 
@@ -41,7 +41,9 @@
 		background-color: var(--background);
 		color: var(--foreground);
 
-		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+			Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
+			sans-serif;
 	}
 
 	main {

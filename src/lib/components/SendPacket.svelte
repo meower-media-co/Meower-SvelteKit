@@ -6,7 +6,7 @@
 	export let chat = 'home';
 
 	function sendPost() {
-    if ($user === null) return;
+		if ($user === null) return;
 		let endpoint = chat === 'home' ? 'v1/home' : `v1/chats/${chat}/messages/`;
 
 		fetch(`${apiOpts.apiBaseUrl}${endpoint}`, {

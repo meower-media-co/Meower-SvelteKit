@@ -10,12 +10,12 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 	}
-  namespace SvelteKit {
-    const cl: Writable<CloudlinkClient>;
-    const user: Writable<CurrentUser | null>;
-    function getStore<T>(store: Writable<T>): T;
-    const apiOpts: ApiOpts;
-  }
+	namespace SvelteKit {
+		const cl: Writable<CloudlinkClient>;
+		const user: Writable<CurrentUser | null>;
+		function getStore<T>(store: Writable<T>): T;
+		const apiOpts: ApiOpts;
+	}
 }
 
 export {};
